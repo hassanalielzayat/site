@@ -1,0 +1,85 @@
+:root {
+      --bg-primary: #060913;
+      --bg-card: rgba(15, 23, 42, 0.72);
+      --accent-gold: #F59E0B;
+      --accent-cyan: #22D3EE;
+    }
+    body {
+      font-family: 'Cairo', 'Inter', sans-serif;
+      background-color: #060913;
+      color: #F8FAFC;
+      overflow-x: hidden;
+    }
+    .perspective-container {
+      perspective: 1200px;
+    }
+    .card-3d {
+      transform-style: preserve-3d;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.82) 0%, rgba(9, 14, 28, 0.92) 100%);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-3d::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(245, 158, 11, 0.14), transparent 45%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .card-3d:hover::before {
+      opacity: 1;
+    }
+    .card-3d:hover {
+      border-color: rgba(245, 158, 11, 0.45);
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.75), 0 0 28px rgba(245, 158, 11, 0.14);
+    }
+    .card-3d-content {
+      position: relative;
+      z-index: 1;
+      transform: translateZ(24px);
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #060913;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #F59E0B;
+    }
+    .text-gradient-gold {
+      background: linear-gradient(135deg, #FEF3C7 0%, #F59E0B 50%, #22D3EE 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .glass-nav {
+      background: rgba(6, 9, 19, 0.82);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glow-badge {
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+    }
+    #webgl-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .content-layer {
+      position: relative;
+      z-index: 10;
+    }

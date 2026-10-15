@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حسن علي الزيات | خبير تسويق استراتيجي ومستشار نمو - الموقع الرسمي 3D</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Cairo', 'Inter', 'sans-serif'],
+            en: ['Inter', 'sans-serif']
+          },
+          colors: {
+            obsidian: '#060913',
+            midnight: '#0B1120',
+            gold: {
+              400: '#FBBF24',
+              500: '#F59E0B',
+              600: '#D97706'
+            },
+            cyan: {
+              400: '#22D3EE',
+              500: '#06B6D4'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --bg-primary: #060913;
+      --bg-card: rgba(15, 23, 42, 0.72);
+      --accent-gold: #F59E0B;
+      --accent-cyan: #22D3EE;
+    }
+    body {
+      font-family: 'Cairo', 'Inter', sans-serif;
+      background-color: #060913;
+      color: #F8FAFC;
+      overflow-x: hidden;
+    }
+    .perspective-container {
+      perspective: 1200px;
+    }
+    .card-3d {
+      transform-style: preserve-3d;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.82) 0%, rgba(9, 14, 28, 0.92) 100%);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-3d::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(245, 158, 11, 0.14), transparent 45%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .card-3d:hover::before {
+      opacity: 1;
+    }
+    .card-3d:hover {
+      border-color: rgba(245, 158, 11, 0.45);
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.75), 0 0 28px rgba(245, 158, 11, 0.14);
+    }
+    .card-3d-content {
+      position: relative;
+      z-index: 1;
+      transform: translateZ(24px);
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #060913;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #F59E0B;
+    }
+    .text-gradient-gold {
+      background: linear-gradient(135deg, #FEF3C7 0%, #F59E0B 50%, #22D3EE 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .glass-nav {
+      background: rgba(6, 9, 19, 0.82);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glow-badge {
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+    }
+    #webgl-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .content-layer {
+      position: relative;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body class="selection:bg-amber-500 selection:text-slate-950">
+
+  <!-- Fullscreen 3D WebGL Background Canvas -->
+  <canvas id="webgl-bg"></canvas>
+
+  <!-- Toast Notification -->
+  <div id="toast-container" class="fixed bottom-6 left-6 z-50 hidden max-w-sm rounded-2xl bg-slate-900/95 border border-amber-500/50 px-5 py-4 text-white shadow-2xl backdrop-blur-xl transition-all duration-300">
+    <div class="flex items-center gap-3">
+      <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400">✓</span>
+      <div>
+        <p id="toast-title" class="text-sm font-bold text-amber-400">تم بنجاح</p>
+        <p id="toast-msg" class="text-xs text-slate-300 mt-0.5"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case Study / Service Detail Modal -->
+  <div id="detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
+    <div class="relative w-full max-w-2xl rounded-3xl border border-amber-500/30 bg-slate-900/95 p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <button type="button" id="close-modal-btn" class="absolute top-5 left-5 flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-300 hover:bg-amber-500 hover:text-slate-950 transition">
+        ✕
+      </button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Main Content Layer -->
+  <div class="content-layer">
+
+    <!-- Top Navigation Bar -->
+    <header class="glass-nav sticky top-0 z-40">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
+        <!-- Brand Identity -->
+        <a href="#hero" class="flex items-center gap-3 group">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-cyan-500 text-slate-950 font-black text-lg shadow-lg shadow-amber-500/20 group-hover:scale-105 transition">
+            HZ
+          </div>
+          <div>
+            <span class="block text-base font-extrabold tracking-tight text-white">حسن علي الزيات</span>
+            <span class="block text-[11px] font-medium text-amber-400 font-en">Strategic Marketing & Growth</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden lg:flex items-center gap-1 xl:gap-2 text-sm font-semibold text-slate-300">
+          <a href="#about" class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-amber-400 transition">عن حسن</a>
+          <a href="#services" class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-amber-400 transition">الخدمات</a>
+          <a href="#models" class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-amber-400 transition">نماذج العمل</a>
+          <a href="#packages" class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-amber-400 transition">باقات الخدمات</a>
+          <a href="#methodology" class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-amber-400 transition">طريقة عملي</a>
+          <a href="#portfolio" class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-amber-400 transition">دراسات الحالة</a>
+          <a href="#diagnostic" class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-cyan-400 transition">تشخيص مجاني</a>
+        </nav>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-2.5">
+          <button type="button" id="toggle-3d-btn" class="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-xs font-bold text-cyan-300 hover:bg-cyan-500/20 transition" title="تغيير طور المجسم ثلاثي الأبعاد">
+            <span class="h-2 w-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span id="mode-3d-label">طور 3D: النواة الاستراتيجية</span>
+          </button>
+          <a href="#contact" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 px-4 py-2.5 text-xs sm:text-sm font-extrabold text-slate-950 shadow-lg shadow-amber-500/25 hover:brightness-110 transition">
+            <span>احجز استشارتك</span>
+            <span>←</span>
+          </a>
+          <button type="button" id="mobile-menu-btn" class="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-slate-900/80 text-white">
+            ☰
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu Drawer -->
+      <div id="mobile-menu" class="hidden lg:hidden border-t border-white/10 bg-slate-950/95 px-4 py-4 space-y-2">
+        <a href="#about" class="mobile-nav-link block rounded-lg px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/5">عن حسن وفلسفته</a>
+        <a href="#services" class="mobile-nav-link block rounded-lg px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/5">الخدمات الاستراتيجية</a>
+        <a href="#models" class="mobile-nav-link block rounded-lg px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/5">نماذج العمل والتعاون</a>
+        <a href="#packages" class="mobile-nav-link block rounded-lg px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/5">باقات الخدمات وحاسبة الباقات</a>
+        <a href="#methodology" class="mobile-nav-link block rounded-lg px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/5">منهجية وطريقة العمل (6 مراحل)</a>
+        <a href="#portfolio" class="mobile-nav-link block rounded-lg px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/5">دراسات الحالة والعملاء</a>
+        <a href="#diagnostic" class="mobile-nav-link block rounded-lg px-3 py-2 text-sm font-semibold text-cyan-400 hover:bg-white/5">أداة تشخيص الجاهزية التسويقية</a>
+        <a href="#contact" class="mobile-nav-link block rounded-lg bg-amber-500 px-3 py-2.5 text-center text-sm font-extrabold text-slate-950">تواصل واحجز جلسة</a>
+      </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="relative overflow-hidden pt-10 pb-20 lg:pt-16 lg:pb-28">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+
+          <!-- Hero Text Column -->
+          <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex flex-wrap items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs sm:text-sm font-bold text-amber-300 glow-badge">
+              <span>✦ خبير تسويق استراتيجي ومستشار نمو</span>
+              <span class="text-slate-500">|</span>
+              <span class="text-cyan-300 font-en">Executive Director @ Sun Media</span>
+            </div>
+
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-white">
+              أحوّل التسويق من أنشطة متفرقة إلى
+              <span class="text-gradient-gold block mt-1">نظام نمو واضح ومكتمل</span>
+            </h1>
+
+            <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl">
+              أنا <strong class="text-white">حسن علي الزيات</strong>، أمتلك أكثر من <strong class="text-amber-400">10 سنوات من الخبرة العملية</strong> عبر 5 أسواق دولية في الربط بين فهم طبيعة العمل والسوق، وتموضع العلامة التجارية، وتوجيه الرسائل التسويقية، والتنفيذ الفعلي لمساعدة الشركات على مضاعفة المبيعات وبناء علامات تجارية راسخة.
+            </p>
+
+            <!-- Signature Strategic Rule Quote -->
+            <blockquote class="rounded-2xl border-r-4 border-amber-500 bg-slate-900/80 p-4 sm:p-5 backdrop-blur-md">
+              <p class="text-sm sm:text-base font-bold text-amber-200">
+                "لا أبدأ بسؤال: ماذا ننشر؟ بل أبدأ بسؤال: ما النتيجة التي يحتاج العمل إلى تحقيقها؟"
+              </p>
+              <footer class="mt-1.5 text-xs text-slate-400">— القاعدة الذهبية في منهجية حسن علي الزيات</footer>
+            </blockquote>
+
+            <!-- Hero CTAs -->
+            <div class="flex flex-wrap items-center gap-3.5 pt-2">
+              <a href="#packages" class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-6 py-3.5 text-sm sm:text-base font-black text-slate-950 shadow-xl shadow-amber-500/25 hover:scale-[1.02] transition">
+                <span>استكشف باقات الخدمات</span>
+                <span>✦</span>
+              </a>
+              <a href="#portfolio" class="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-slate-900/75 px-6 py-3.5 text-sm sm:text-base font-bold text-white hover:border-amber-400/50 hover:bg-slate-800/80 transition">
+                <span>دراسات الحالة والأعمال</span>
+              </a>
+              <a href="#diagnostic" class="inline-flex items-center gap-2 rounded-2xl border border-cyan-500/40 bg-cyan-500/10 px-5 py-3.5 text-sm font-bold text-cyan-300 hover:bg-cyan-500/20 transition">
+                <span>اختبر جاهزية شركتك مجاناً</span>
+              </a>
+            </div>
+
+            <!-- Key Metrics Strip -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
+              <div class="card-3d rounded-2xl p-4 text-center">
+                <div class="card-3d-content">
+                  <span class="block text-2xl sm:text-3xl font-black text-amber-400 font-en">+10</span>
+                  <span class="text-xs text-slate-300 font-semibold">سنوات خبرة استراتيجية</span>
+                </div>
+              </div>
+              <div class="card-3d rounded-2xl p-4 text-center">
+                <div class="card-3d-content">
+                  <span class="block text-2xl sm:text-3xl font-black text-cyan-400 font-en">5</span>
+                  <span class="text-xs text-slate-300 font-semibold">أسواق دولية وإقليمية</span>
+                </div>
+              </div>
+              <div class="card-3d rounded-2xl p-4 text-center">
+                <div class="card-3d-content">
+                  <span class="block text-2xl sm:text-3xl font-black text-amber-400 font-en">+16</span>
+                  <span class="text-xs text-slate-300 font-semibold">علامة تجارية رائدة</span>
+                </div>
+              </div>
+              <div class="card-3d rounded-2xl p-4 text-center">
+                <div class="card-3d-content">
+                  <span class="block text-2xl sm:text-3xl font-black text-cyan-400 font-en">6</span>
+                  <span class="text-xs text-slate-300 font-semibold">مراحل لمنظومة النمو</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive 3D Strategic Cockpit Column -->
+          <div class="lg:col-span-5">
+            <div class="card-3d rounded-3xl p-5 sm:p-6 border border-amber-500/30 shadow-2xl">
+              <div class="card-3d-content space-y-4">
+                <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400 font-en">3D Strategic Nexus</span>
+                    <h2 class="text-lg font-extrabold text-white">مُجسّم منظومة النمو التفاعلي</h2>
+                  </div>
+                  <span class="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300 border border-emerald-500/30">تفاعلي 360°</span>
+                </div>
+
+                <!-- Dedicated Interactive Mini 3D Canvas -->
+                <div class="relative h-64 sm:h-72 w-full rounded-2xl bg-slate-950/90 border border-white/10 overflow-hidden">
+                  <canvas id="hero-3d-canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+                  <div class="absolute bottom-3 right-3 left-3 flex items-center justify-between pointer-events-none">
+                    <span class="rounded-lg bg-slate-900/80 px-2.5 py-1 text-[11px] text-slate-300 backdrop-blur-md">حرك المؤشر لتدوير المجسم 3D</span>
+                    <span id="active-pillar-badge" class="rounded-lg bg-amber-500/20 border border-amber-500/40 px-2.5 py-1 text-[11px] font-bold text-amber-300 backdrop-blur-md">01 / اكتشاف السوق</span>
+                  </div>
+                </div>
+
+                <!-- Interactive Pillar Selector Buttons -->
+                <div>
+                  <p class="text-xs text-slate-400 mb-2 font-semibold">اضغط على أي محور لاستكشاف أثره في منظومة النمو:</p>
+                  <div class="grid grid-cols-3 gap-2">
+                    <button type="button" data-pillar="0" class="pillar-btn rounded-xl border border-amber-500 bg-amber-500/20 px-2.5 py-2 text-xs font-bold text-white transition">01. الاكتشاف</button>
+                    <button type="button" data-pillar="1" class="pillar-btn rounded-xl border border-white/10 bg-slate-900/70 px-2.5 py-2 text-xs font-semibold text-slate-300 hover:border-amber-400/50 transition">02. التشخيص</button>
+                    <button type="button" data-pillar="2" class="pillar-btn rounded-xl border border-white/10 bg-slate-900/70 px-2.5 py-2 text-xs font-semibold text-slate-300 hover:border-amber-400/50 transition">03. الاتجاه</button>
+                    <button type="button" data-pillar="3" class="pillar-btn rounded-xl border border-white/10 bg-slate-900/70 px-2.5 py-2 text-xs font-semibold text-slate-300 hover:border-amber-400/50 transition">04. تصميم النظام</button>
+                    <button type="button" data-pillar="4" class="pillar-btn rounded-xl border border-white/10 bg-slate-900/70 px-2.5 py-2 text-xs font-semibold text-slate-300 hover:border-amber-400/50 transition">05. التنفيذ</button>
+                    <button type="button" data-pillar="5" class="pillar-btn rounded-xl border border-white/10 bg-slate-900/70 px-2.5 py-2 text-xs font-semibold text-slate-300 hover:border-amber-400/50 transition">06. التحسين</button>
+                  </div>
+                </div>
+
+                <!-- Dynamic Pillar Detail Box -->
+                <div id="pillar-info-box" class="rounded-2xl bg-slate-950/80 border border-white/10 p-3.5">
+                  <div class="flex items-center justify-between">
+                    <span id="pillar-title" class="text-sm font-extrabold text-amber-400">01 / اكتشاف (Discover)</span>
+                    <span id="pillar-en" class="text-xs font-en text-cyan-400">Market & Business Discovery</span>
+                  </div>
+                  <p id="pillar-desc" class="mt-1 text-xs text-slate-300 leading-relaxed">
+                    فهم عميق لطبيعة الشركة، ديناميكيات السوق، سلوك العملاء، والمنافسين، وربطها بأهداف العمل التجارية الحقيقية.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT & PHILOSOPHY SECTION -->
+    <section id="about" class="py-16 lg:py-24 border-t border-white/10 bg-slate-950/40">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
+
+        <!-- Section Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-amber-400 font-en">ABOUT HASSAN ALI ELZAYAT</span>
+            <h2 class="mt-2 text-3xl sm:text-4xl font-black text-white">من هو حسن علي الزيات؟ وما الذي يميز رؤيته؟</h2>
+          </div>
+          <p class="text-sm sm:text-base text-slate-300 max-w-xl">
+            المدير التنفيذي لشركة <strong class="text-amber-400">Sun Media للحلول التسويقية المتكاملة</strong>، ومستشار استراتيجي يربط بين التخطيط العميق والتنفيذ المربح على أرض الواقع.
+          </p>
+        </div>
+
+        <!-- Strategic Principle Banner -->
+        <div class="card-3d rounded-3xl p-6 sm:p-8 border border-amber-500/30">
+          <div class="card-3d-content grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div class="lg:col-span-8 space-y-3">
+              <span class="inline-block rounded-lg bg-amber-500/20 px-3 py-1 text-xs font-bold text-amber-300">المبدأ الاستراتيجي الحاكم</span>
+              <blockquote class="text-lg sm:text-2xl font-extrabold text-white leading-relaxed">
+                "فكّر في القيمة التي تهم العميل. لا تكتفِ بتسويق ما تبيعه. وضّح لماذا يهم، ولمن، وما الذي يجعل الوعد جديرًا بالثقة."
+              </blockquote>
+              <p class="text-sm text-slate-300">
+                كثير من الشركات تنفق ميزانيات ضخمة على الإعلانات والنشر اليومي دون عائد واضح؛ لأن المشكلة ليست في الإعلان، بل في غياب النظام الاستراتيجي الذي يربط التموضع بالعرض وبرحلة الشراء.
+              </p>
+            </div>
+            <div class="lg:col-span-4 flex flex-col gap-3 rounded-2xl bg-slate-950/80 p-5 border border-white/10">
+              <span class="text-xs font-bold text-cyan-400">الأسواق الدولية التي عملت بها مباشرة:</span>
+              <div class="flex flex-wrap gap-2">
+                <span class="rounded-xl bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-bold text-white">🇪🇬 مصر (Egypt)</span>
+                <span class="rounded-xl bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-bold text-white">🇸🇦 السعودية (KSA)</span>
+                <span class="rounded-xl bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-bold text-white">🇦🇪 الإمارات (UAE)</span>
+                <span class="rounded-xl bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-bold text-white">🇷🇴 رومانيا (Romania)</span>
+                <span class="rounded-xl bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-bold text-white">🇺🇸 أمريكا (USA)</span>
+              </div>
+              <div class="pt-2 border-t border-white/10 text-xs text-slate-400">
+                القيادة التنفيذية: <strong class="text-white">المدير التنفيذي لشركة Sun Media</strong> للحلول التسويقية المتكاملة.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- The 4 Core Questions Cards -->
+        <div>
+          <h3 class="text-xl font-extrabold text-white mb-5">الأسئلة الأربعة الجوهرية التي نبني عليها استراتيجية علامتك:</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 perspective-container">
+            <div class="card-3d rounded-2xl p-5">
+              <div class="card-3d-content space-y-2.5">
+                <span class="inline-block rounded-lg bg-amber-500/15 px-2.5 py-1 text-xs font-bold text-amber-400 font-en">01 / Brand or Activity?</span>
+                <h4 class="text-base font-extrabold text-white">هل يبني المحتوى علامة أم يضيف منشورًا فقط؟</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">نحول المحتوى من مجرد ملء جدول النشر إلى أصل استراتيجي يرسخ مكانة العلامة ويبني الثقة قبل البيع.</p>
+              </div>
+            </div>
+            <div class="card-3d rounded-2xl p-5">
+              <div class="card-3d-content space-y-2.5">
+                <span class="inline-block rounded-lg bg-cyan-500/15 px-2.5 py-1 text-xs font-bold text-cyan-400 font-en">02 / Activity or Impact?</span>
+                <h4 class="text-base font-extrabold text-white">هل نقيس النشاط أم الأثر على الهدف التجاري؟</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">لا نكتفي بمؤشرات التفاعل السطحية، بل نربط كل حملة وقناة تسويقية بمؤشرات نمو ومبيعات حقيقية.</p>
+              </div>
+            </div>
+            <div class="card-3d rounded-2xl p-5">
+              <div class="card-3d-content space-y-2.5">
+                <span class="inline-block rounded-lg bg-amber-500/15 px-2.5 py-1 text-xs font-bold text-amber-400 font-en">03 / Value Clarity</span>
+                <h4 class="text-base font-extrabold text-white">هل يستطيع العميل شرح قيمتنا بجملة واحدة؟</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">نصيغ عرض قيمة (Value Proposition) واضحاً ومباشراً يجعل العميل يدرك فوراً كيف نحل مشكلته.</p>
+              </div>
+            </div>
+            <div class="card-3d rounded-2xl p-5">
+              <div class="card-3d-content space-y-2.5">
+                <span class="inline-block rounded-lg bg-cyan-500/15 px-2.5 py-1 text-xs font-bold text-cyan-400 font-en">04 / Choice & Differentiation</span>
+                <h4 class="text-base font-extrabold text-white">لماذا يختارنا العميل بدلاً من المنافسين؟</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">نحدد نقاط التميز التنافسي الحقيقية التي تحميك من حرب الأسعار وتجعل علامتك الخيار الأول.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Core Pillars of Expertise -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 perspective-container">
+          <!-- Pillar 1 -->
+          <div class="card-3d rounded-3xl p-6">
+            <div class="card-3d-content space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 font-black text-xl">01</span>
+                <span class="text-xs font-bold text-slate-400 font-en">STRATEGIC MARKETING</span>
+              </div>
+              <h3 class="text-xl font-black text-white">التسويق الاستراتيجي</h3>
+              <ul class="space-y-2.5 text-sm text-slate-300">
+                <li class="flex items-center gap-2"><span class="text-amber-400">◆</span> استراتيجية التسويق والنمو الشاملة</li>
+                <li class="flex items-center gap-2"><span class="text-amber-400">◆</span> استراتيجيات دخول الأسواق والتموضع التنافسي</li>
+                <li class="flex items-center gap-2"><span class="text-amber-400">◆</span> تقسيم العملاء (Customer Segmentation) وتحليل المنافسين</li>
+                <li class="flex items-center gap-2"><span class="text-amber-400">◆</span> التخطيط الاستراتيجي ورسم خارطة الطريق (Roadmap)</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="card-3d rounded-3xl p-6">
+            <div class="card-3d-content space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/20 text-cyan-400 font-black text-xl">02</span>
+                <span class="text-xs font-bold text-slate-400 font-en">BRAND STRATEGY</span>
+              </div>
+              <h3 class="text-xl font-black text-white">استراتيجية العلامة التجارية</h3>
+              <ul class="space-y-2.5 text-sm text-slate-300">
+                <li class="flex items-center gap-2"><span class="text-cyan-400">◆</span> تحديد وبناء تموضع العلامة التجارية (Brand Positioning)</li>
+                <li class="flex items-center gap-2"><span class="text-cyan-400">◆</span> صياغة عرض القيمة (Value Proposition) ورسائل العلامة</li>
+                <li class="flex items-center gap-2"><span class="text-cyan-400">◆</span> تحديد شخصية العلامة وهيكلها البنائي (Brand Architecture)</li>
+                <li class="flex items-center gap-2"><span class="text-cyan-400">◆</span> استراتيجيات إعادة بناء الهوية والتموضع (Rebranding)</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="card-3d rounded-3xl p-6">
+            <div class="card-3d-content space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400 font-black text-xl">03</span>
+                <span class="text-xs font-bold text-slate-400 font-en">CAMPAIGN & GROWTH</span>
+              </div>
+              <h3 class="text-xl font-black text-white">الحملات ومنظومة النمو</h3>
+              <ul class="space-y-2.5 text-sm text-slate-300">
+                <li class="flex items-center gap-2"><span class="text-emerald-400">◆</span> تخطيط وتنفيذ الحملات التسويقية المتكاملة</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">◆</span> استراتيجيات المحتوى والتواصل الاستراتيجي</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">◆</span> تحسين رحلة العميل (Customer Journey) واكتساب العملاء</li>
+                <li class="flex items-center gap-2"><span class="text-emerald-400">◆</span> تطوير العروض ومواءمة التسويق مع فريق المبيعات</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- DETAILED SERVICES SECTION -->
+    <section id="services" class="py-16 lg:py-24 border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
+
+        <div class="text-center max-w-3xl mx-auto space-y-3">
+          <span class="text-xs font-bold uppercase tracking-widest text-amber-400 font-en">STRATEGIC SERVICES</span>
+          <h2 class="text-3xl sm:text-4xl font-black text-white">خدماتي الاستشارية والتنفيذية بالتفصيل</h2>
+          <p class="text-sm sm:text-base text-slate-300">
+            أربع ركائز متخصصة تغطي كافة مراحل نمو شركتك — من التشخيص الدقيق وحتى بناء العلامة، تخطيط التسويق، ومضاعفة المبيعات.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 perspective-container" id="services-grid">
+          <!-- Service 1 -->
+          <div class="card-3d rounded-3xl p-6 sm:p-8 flex flex-col justify-between">
+            <div class="card-3d-content space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="rounded-xl bg-amber-500/20 border border-amber-500/40 px-3 py-1 text-xs font-black text-amber-300 font-en">01 / CONSULTING</span>
+                <span class="text-xs text-slate-400">تشخيص وتوجيه تنفيذي</span>
+              </div>
+              <h3 class="text-2xl font-black text-white">استشارات التسويق الاستراتيجي</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                تشخيص شامل للأداء التسويقي الحالي، قراءة دقيقة للسوق والمنافسين، تحديد التموضع وفرص النمو غير المستغلة، ووضع خطة عمل تنفيذية واضحة تمنح الإدارة رؤية حاسمة.
+              </p>
+              <div class="rounded-2xl bg-slate-950/70 p-4 border border-white/5 space-y-2">
+                <span class="text-xs font-bold text-amber-400 block">أبرز المخرجات التي تتسلمها:</span>
+                <ul class="text-xs text-slate-300 space-y-1.5">
+                  <li>• تقرير تشخيص الفجوات التسويقية والفرص البيعية (Gap Analysis)</li>
+                  <li>• تحليل عميق للمنافسين وشرائح العملاء الأكثر ربحية</li>
+                  <li>• خارطة طريق استراتيجية بالأولويات للأشهر الـ 3 إلى 6 القادمة</li>
+                </ul>
+              </div>
+            </div>
+            <div class="card-3d-content pt-6 mt-4 border-t border-white/10 flex items-center justify-between gap-3">
+              <button type="button" onclick="openServiceModal(0)" class="text-xs font-bold text-cyan-400 hover:underline">عرض تفاصيل ومخرجات الخدمة ←</button>
+              <button type="button" onclick="selectServiceForContact('استشارات التسويق الاستراتيجي')" class="rounded-xl bg-amber-500/20 border border-amber-500/40 px-4 py-2 text-xs font-extrabold text-amber-300 hover:bg-amber-500 hover:text-slate-950 transition">اطلب الخدمة</button>
+            </div>
+          </div>
+
+          <!-- Service 2 -->
+          <div class="card-3d rounded-3xl p-6 sm:p-8 flex flex-col justify-between">
+            <div class="card-3d-content space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="rounded-xl bg-cyan-500/20 border border-cyan-500/40 px-3 py-1 text-xs font-black text-cyan-300 font-en">02 / BRAND</span>
+                <span class="text-xs text-slate-400">هوية وتموضع تنافسي</span>
+              </div>
+              <h3 class="text-2xl font-black text-white">استراتيجية العلامة التجارية</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                تحديد الجمهور المستهدف بدقة، صياغة عرض القيمة (Value Proposition) والرسائل الأساسية، وبناء شخصية العلامة التجارية وتوجيه اتجاه التواصل البصري واللفظي عبر كل نقاط الالتقاء.
+              </p>
+              <div class="rounded-2xl bg-slate-950/70 p-4 border border-white/5 space-y-2">
+                <span class="text-xs font-bold text-cyan-400 block">أبرز المخرجات التي تتسلمها:</span>
+                <ul class="text-xs text-slate-300 space-y-1.5">
+                  <li>• وثيقة التموضع الاستراتيجي وعرض القيمة الفريد (UVP)</li>
+                  <li>• مصفوفة الرسائل التسويقية لكل شريحة عملاء (Messaging Matrix)</li>
+                  <li>• دليل نبرة الصوت واتجاه الهوية والتواصل (Brand Direction)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="card-3d-content pt-6 mt-4 border-t border-white/10 flex items-center justify-between gap-3">
+              <button type="button" onclick="openServiceModal(1)" class="text-xs font-bold text-cyan-400 hover:underline">عرض تفاصيل ومخرجات الخدمة ←</button>
+              <button type="button" onclick="selectServiceForContact('استراتيجية العلامة التجارية')" class="rounded-xl bg-cyan-500/20 border border-cyan-500/40 px-4 py-2 text-xs font-extrabold text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 transition">اطلب الخدمة</button>
+            </div>
+          </div>
+
+          <!-- Service 3 -->
+          <div class="card-3d rounded-3xl p-6 sm:p-8 flex flex-col justify-between">
+            <div class="card-3d-content space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="rounded-xl bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 text-xs font-black text-emerald-300 font-en">03 / MARKETING</span>
+                <span class="text-xs text-slate-400">نظام تسويقي متكامل</span>
+              </div>
+              <h3 class="text-2xl font-black text-white">استراتيجية التسويق الشاملة</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                تحويل أهداف الشركة إلى خطة تسويقية مترابطة: اختيار القنوات الأنسب، وضع اتجاه المحتوى والحملات الإعلانية، رسم رحلة العميل من الوعي للشراء، وتحديد مؤشرات الأداء (KPIs).
+              </p>
+              <div class="rounded-2xl bg-slate-950/70 p-4 border border-white/5 space-y-2">
+                <span class="text-xs font-bold text-emerald-400 block">أبرز المخرجات التي تتسلمها:</span>
+                <ul class="text-xs text-slate-300 space-y-1.5">
+                  <li>• خطة القنوات وتوزيع الميزانية التسويقية ومفاهيم الحملات</li>
+                  <li>• استراتيجية المحتوى (Content Pillars) وهندسة رحلة العميل</li>
+                  <li>• لوحة مؤشرات الأداء الرئيسية (KPIs Framework) لقياس العائد</li>
+                </ul>
+              </div>
+            </div>
+            <div class="card-3d-content pt-6 mt-4 border-t border-white/10 flex items-center justify-between gap-3">
+              <button type="button" onclick="openServiceModal(2)" class="text-xs font-bold text-cyan-400 hover:underline">عرض تفاصيل ومخرجات الخدمة ←</button>
+              <button type="button" onclick="selectServiceForContact('استراتيجية التسويق الشاملة')" class="rounded-xl bg-emerald-500/20 border border-emerald-500/40 px-4 py-2 text-xs font-extrabold text-emerald-300 hover:bg-emerald-400 hover:text-slate-950 transition">اطلب الخدمة</button>
+            </div>
+          </div>
+
+          <!-- Service 4 -->
+          <div class="card-3d rounded-3xl p-6 sm:p-8 flex flex-col justify-between">
+            <div class="card-3d-content space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="rounded-xl bg-purple-500/20 border border-purple-500/40 px-3 py-1 text-xs font-black text-purple-300 font-en">04 / GROWTH</span>
+                <span class="text-xs text-slate-400">استحواذ، تحويل، ومبيعات</span>
+              </div>
+              <h3 class="text-2xl font-black text-white">استراتيجية النمو وتطوير العروض</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                تشخيص فرص الاستحواذ على العملاء ورفع معدلات التحويل (Conversion)، إعادة تصميم وهيكلة العروض التجارية والباقات، ومواءمة جهود التسويق مع فريق المبيعات لتحقيق نمو مستدام.
+              </p>
+              <div class="rounded-2xl bg-slate-950/70 p-4 border border-white/5 space-y-2">
+                <span class="text-xs font-bold text-purple-400 block">أبرز المخرجات التي تتسلمها:</span>
+                <ul class="text-xs text-slate-300 space-y-1.5">
+                  <li>• هندسة العروض التجارية والباقات (Offer Architecture)</li>
+                  <li>• خطة تحسين قمع المبيعات ورفع معدل الإغلاق (Funnel Optimization)</li>
+                  <li>• نظام مواءمة التسويق والمبيعات (Sales & Marketing Alignment)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="card-3d-content pt-6 mt-4 border-t border-white/10 flex items-center justify-between gap-3">
+              <button type="button" onclick="openServiceModal(3)" class="text-xs font-bold text-cyan-400 hover:underline">عرض تفاصيل ومخرجات الخدمة ←</button>
+              <button type="button" onclick="selectServiceForContact('استراتيجية النمو وتطوير العروض')" class="rounded-xl bg-purple-500/20 border border-purple-500/40 px-4 py-2 text-xs font-extrabold text-purple-300 hover:bg-purple-400 hover:text-slate-950 transition">اطلب الخدمة</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- BUSINESS & ENGAGEMENT MODELS SECTION (نماذج العمل والتعاون) -->
+    <section id="models" class="py-16 lg:py-24 border-t border-white/10 bg-slate-950/50">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
+
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-cyan-400 font-en">ENGAGEMENT & BUSINESS MODELS</span>
+            <h2 class="mt-2 text-3xl sm:text-4xl font-black text-white">نماذج العمل وأنظمة التعاون المتاحة</h2>
+          </div>
+          <p class="text-sm sm:text-base text-slate-300 max-w-xl">
+            صممتُ 4 نماذج عمل مرنة لتناسب مرحلة شركتك الحالية — سواء كنت تبحث عن جلسة تشخيصية سريعة، أو بناء استراتيجية كاملة، أو قيادة مستمرة، أو تنفيذ شامل.
+          </p>
+        </div>
+
+        <!-- Who Benefits Banner -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+            <span class="text-amber-400 font-black text-sm block mb-1">01. الشركات الصغيرة والمتوسطة</span>
+            <p class="text-xs text-slate-300">التي تحتاج إلى تحويل التسويق العشوائي والمتفرق إلى نظام نمو منظم ومربح.</p>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+            <span class="text-cyan-400 font-black text-sm block mb-1">02. العلامات في مرحلة توسع</span>
+            <p class="text-xs text-slate-300">المقبلة على إطلاق منتج جديد، دخول سوق إقليمي جديد، أو إعادة تموضع (Rebranding).</p>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+            <span class="text-emerald-400 font-black text-sm block mb-1">03. فرق التسويق الداخلية</span>
+            <p class="text-xs text-slate-300">التي تمتلك أدوات التنفيذ لكنها تحتاج إلى اتجاه استراتيجي وأولويات واضحة وإشراف خبير.</p>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+            <span class="text-purple-400 font-black text-sm block mb-1">04. المستثمرون ورواد الأعمال</span>
+            <p class="text-xs text-slate-300">الباحثون عن وضوح استراتيجي وتشخيص للسوق قبل ضخ ميزانيات في حملات جديدة.</p>
+          </div>
+        </div>
+
+        <!-- 4 Business Models Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 perspective-container">
+          <!-- Model 1 -->
+          <div class="card-3d rounded-3xl p-6 flex flex-col justify-between">
+            <div class="card-3d-content space-y-3">
+              <span class="inline-block rounded-lg bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-300">النموذج الأول</span>
+              <h3 class="text-lg font-black text-white">جلسات استشارية وتشخيصية مكثفة</h3>
+              <p class="text-xs font-en text-slate-400">Strategic Audit & Advisory Sprint</p>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                تعاون سريع ومركّز لمراجعة وضعك التسويقي الحالي، كشف نقاط التسريب في الميزانية أو الرسائل، وإعطائك خطة تصحيح مسار فورية.
+              </p>
+              <div class="pt-2 space-y-1 text-xs text-slate-300">
+                <div><strong class="text-white">المدة:</strong> من أسبوع إلى أسبوعين</div>
+                <div><strong class="text-white">آلية العمل:</strong> جلسات مباشرة + تقرير تشخيصي</div>
+              </div>
+            </div>
+            <button type="button" onclick="selectModelForContact('نموذج الجلسات الاستشارية والتشخيصية المكثفة')" class="card-3d-content mt-5 w-full rounded-xl border border-white/15 bg-white/5 py-2.5 text-xs font-bold text-white hover:bg-amber-500 hover:text-slate-950 hover:border-amber-500 transition">
+              اختر هذا النموذج
+            </button>
+          </div>
+
+          <!-- Model 2 -->
+          <div class="card-3d rounded-3xl p-6 flex flex-col justify-between">
+            <div class="card-3d-content space-y-3">
+              <span class="inline-block rounded-lg bg-cyan-500/15 px-3 py-1 text-xs font-bold text-cyan-300">النموذج الثاني</span>
+              <h3 class="text-lg font-black text-white">مشروع بناء الاستراتيجية المتكاملة</h3>
+              <p class="text-xs font-en text-slate-400">Full Strategy Blueprint Project</p>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                العمل على مشروع محدد المدة والنتائج لتسليمك وثيقة استراتيجية شاملة (العلامة التجارية + خطة التسويق + خارطة النمو) جاهزة للتنفيذ.
+              </p>
+              <div class="pt-2 space-y-1 text-xs text-slate-300">
+                <div><strong class="text-white">المدة:</strong> 3 إلى 6 أسابيع (حسب حجم الشركة)</div>
+                <div><strong class="text-white">آلية العمل:</strong> بحث، ورش عمل، وتسليم الدليل الشامل</div>
+              </div>
+            </div>
+            <button type="button" onclick="selectModelForContact('نموذج مشروع بناء الاستراتيجية المتكاملة')" class="card-3d-content mt-5 w-full rounded-xl border border-white/15 bg-white/5 py-2.5 text-xs font-bold text-white hover:bg-cyan-400 hover:text-slate-950 hover:border-cyan-400 transition">
+              اختر هذا النموذج
+            </button>
+          </div>
+
+          <!-- Model 3 -->
+          <div class="card-3d rounded-3xl p-6 flex flex-col justify-between border-amber-500/40">
+            <div class="card-3d-content space-y-3">
+              <span class="inline-block rounded-lg bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300">النموذج الثالث • الأكثر استدامة</span>
+              <h3 class="text-lg font-black text-white">الشريك الاستراتيجي المستمر (Fractional CMO)</h3>
+              <p class="text-xs font-en text-slate-400">Monthly Strategic Leadership Retainer</p>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                انضمامي كمدير تسويق استراتيجي خارجي لشركتك لتوجيه فريقك الداخلي، الإشراف على الحملات، مراجعة الأرقام شهرياً، وتطوير العروض باستمرار.
+              </p>
+              <div class="pt-2 space-y-1 text-xs text-slate-300">
+                <div><strong class="text-white">المدة:</strong> تعاقد شهري مستمر (3 - 12 شهراً)</div>
+                <div><strong class="text-white">آلية العمل:</strong> اجتماعات أسبوعية + إشراف وتحسين مستمر</div>
+              </div>
+            </div>
+            <button type="button" onclick="selectModelForContact('نموذج الشريك الاستراتيجي المستمر Fractional CMO')" class="card-3d-content mt-5 w-full rounded-xl bg-amber-500 py-2.5 text-xs font-extrabold text-slate-950 hover:brightness-110 transition">
+              اختر هذا النموذج
+            </button>
+          </div>
+
+          <!-- Model 4 -->
+          <div class="card-3d rounded-3xl p-6 flex flex-col justify-between">
+            <div class="card-3d-content space-y-3">
+              <span class="inline-block rounded-lg bg-purple-500/15 px-3 py-1 text-xs font-bold text-purple-300">النموذج الرابع • استراتيجية + تنفيذ</span>
+              <h3 class="text-lg font-black text-white">الحلول التنفيذية الكاملة عبر Sun Media</h3>
+              <p class="text-xs font-en text-slate-400">End-to-End Execution via Sun Media</p>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                إذا لم يكن لديك فريق تسويق داخلي، نتولى وضع الاستراتيجية ثم تنفيذها بالكامل (الهوية، المحتوى، الإعلانات، الإنتاج) عبر فريقي في شركة Sun Media.
+              </p>
+              <div class="pt-2 space-y-1 text-xs text-slate-300">
+                <div><strong class="text-white">المدة:</strong> باقات ربع سنوية أو سنوية شاملة</div>
+                <div><strong class="text-white">آلية العمل:</strong> تخطيط استراتيجي + فريق تنفيذ كامل</div>
+              </div>
+            </div>
+            <button type="button" onclick="selectModelForContact('نموذج الحلول التنفيذية الكاملة عبر Sun Media')" class="card-3d-content mt-5 w-full rounded-xl border border-white/15 bg-white/5 py-2.5 text-xs font-bold text-white hover:bg-purple-400 hover:text-slate-950 hover:border-purple-400 transition">
+              اختر هذا النموذج
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SERVICE PACKAGES & CUSTOM PACKAGE BUILDER (باقات الخدمات) -->
+    <section id="packages" class="py-16 lg:py-24 border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-14">
+
+        <div class="text-center max-w-3xl mx-auto space-y-3">
+          <span class="text-xs font-bold uppercase tracking-widest text-amber-400 font-en">SERVICE PACKAGES & TIERS</span>
+          <h2 class="text-3xl sm:text-4xl font-black text-white">باقات الخدمات المصممة لنمو أعمالك</h2>
+          <p class="text-sm sm:text-base text-slate-300">
+            اختر الباقة التي تتوافق مع المرحلة الحالية لشركتك، أو استخدم أداة تخصيص الباقة بالأسفل لتصميم باقة مفصلة على مقاس احتياجاتك.
+          </p>
+        </div>
+
+        <!-- 3 Main Packages Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch perspective-container">
+
+          <!-- Package 1 -->
+          <div class="card-3d rounded-3xl p-7 flex flex-col justify-between">
+            <div class="card-3d-content space-y-5">
+              <div class="flex items-center justify-between">
+                <span class="rounded-full bg-slate-800 px-3 py-1 text-xs font-bold text-slate-300">الباقة الأولى</span>
+                <span class="text-xs font-en text-amber-400 font-bold">DIAGNOSTIC & DIRECTION</span>
+              </div>
+              <div>
+                <h3 class="text-2xl font-black text-white">باقة التشخيص والتوجيه الاستراتيجي</h3>
+                <p class="mt-1.5 text-xs text-slate-400">مثالية للشركات التي تريد إيقاف هدر الميزانية وتحديد نقطة الانطلاق الصحيحة</p>
+              </div>
+              <div class="border-y border-white/10 py-4">
+                <span class="text-xs text-slate-400 block">التركيز الأساسي:</span>
+                <span class="text-base font-extrabold text-amber-300">الفهم، التشخيص، وتحديد الاتجاه خلال أسبوعين</span>
+              </div>
+              <ul class="space-y-3 text-sm text-slate-200">
+                <li class="flex items-start gap-2.5"><span class="text-amber-400 font-bold">✓</span><span>جلسة استكشاف وتشخيص معمقة لنموذج العمل والوضع الحالي</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-amber-400 font-bold">✓</span><span>مراجعة شاملة للحضور الرقمي والحملات والرسائل الحالية</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-amber-400 font-bold">✓</span><span>تحليل سريع للمنافسين وشرائح العملاء المستهدفة</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-amber-400 font-bold">✓</span><span>تحديد الفجوات التسويقية وأهم 3 فرص للنمو السريع</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-amber-400 font-bold">✓</span><span>تسليم خارطة طريق تنفيذية (Action Plan) واضحة بالأولويات</span></li>
+              </ul>
+            </div>
+            <div class="card-3d-content pt-6 mt-6 border-t border-white/10">
+              <button type="button" onclick="selectPackageForContact('باقة التشخيص والتوجيه الاستراتيجي')" class="w-full rounded-2xl border border-amber-500/50 bg-amber-500/15 py-3.5 text-sm font-extrabold text-amber-300 hover:bg-amber-500 hover:text-slate-950 transition">
+                اطلب باقة التشخيص والتوجيه
+              </button>
+            </div>
+          </div>
+
+          <!-- Package 2 (Featured) -->
+          <div class="card-3d rounded-3xl p-7 flex flex-col justify-between border-2 border-amber-500/70 shadow-2xl shadow-amber-500/10 relative">
+            <div class="card-3d-content space-y-5">
+              <div class="flex items-center justify-between">
+                <span class="rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 px-3.5 py-1 text-xs font-black text-slate-950">الأكثر طلباً للشركات</span>
+                <span class="text-xs font-en text-cyan-300 font-bold">BRAND & MARKETING SYSTEM</span>
+              </div>
+              <div>
+                <h3 class="text-2xl font-black text-white">باقة بناء العلامة ونظام التسويق</h3>
+                <p class="mt-1.5 text-xs text-slate-300">مثالية للشركات الساعية لتموضع قوي ونظام تسويقي متكامل يقود للمبيعات</p>
+              </div>
+              <div class="border-y border-white/10 py-4">
+                <span class="text-xs text-slate-400 block">التركيز الأساسي:</span>
+                <span class="text-base font-extrabold text-gradient-gold">بناء التموضع + استراتيجية التسويق والمحتوى والحملات</span>
+              </div>
+              <ul class="space-y-3 text-sm text-slate-100">
+                <li class="flex items-start gap-2.5"><span class="text-amber-400 font-bold">★</span><span><strong>كل ما في باقة التشخيص</strong> بالإضافة إلى:</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-amber-400 font-bold">✓</span><span>بناء تموضع العلامة التجارية (Brand Positioning) وعرض القيمة (UVP)</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-amber-400 font-bold">✓</span><span>صياغة مصفوفة الرسائل التسويقية ونبرة التواصل لكل شريحة</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-amber-400 font-bold">✓</span><span>تصميم رحلة العميل الكاملة (Customer Journey) من الوعي للشراء</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-amber-400 font-bold">✓</span><span>وضع استراتيجية المحتوى ومفاهيم الحملات الإعلانية والقنوات</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-amber-400 font-bold">✓</span><span>تحديد مؤشرات الأداء (KPIs) وجلسة تسليم وتدريب لفريق العمل</span></li>
+              </ul>
+            </div>
+            <div class="card-3d-content pt-6 mt-6 border-t border-white/10">
+              <button type="button" onclick="selectPackageForContact('باقة بناء العلامة ونظام التسويق (الأكثر طلباً)')" class="w-full rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 py-3.5 text-sm font-black text-slate-950 shadow-lg shadow-amber-500/25 hover:brightness-110 transition">
+                احجز باقة العلامة ونظام التسويق
+              </button>
+            </div>
+          </div>
+
+          <!-- Package 3 -->
+          <div class="card-3d rounded-3xl p-7 flex flex-col justify-between">
+            <div class="card-3d-content space-y-5">
+              <div class="flex items-center justify-between">
+                <span class="rounded-full bg-cyan-500/20 border border-cyan-500/40 px-3 py-1 text-xs font-bold text-cyan-300">الباقة الثالثة • VIP</span>
+                <span class="text-xs font-en text-cyan-400 font-bold">GROWTH & FRACTIONAL CMO</span>
+              </div>
+              <div>
+                <h3 class="text-2xl font-black text-white">باقة منظومة النمو الشامل والشراكة</h3>
+                <p class="mt-1.5 text-xs text-slate-400">للمؤسسات الطموحة الباحثة عن قيادة استراتيجية مستمرة أو تنفيذ شامل</p>
+              </div>
+              <div class="border-y border-white/10 py-4">
+                <span class="text-xs text-slate-400 block">التركيز الأساسي:</span>
+                <span class="text-base font-extrabold text-cyan-300">الاستراتيجية + هندسة العروض + الإشراف والتنفيذ المستمر</span>
+              </div>
+              <ul class="space-y-3 text-sm text-slate-200">
+                <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">★</span><span><strong>كل ما في باقة بناء العلامة والتسويق</strong> بالإضافة إلى:</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">✓</span><span>هندسة وتطوير العروض التجارية والباقات لرفع قيمة العميل</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">✓</span><span>ربط ومواءمة منظومة التسويق مع فريق المبيعات (CRM & Sales Flow)</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">✓</span><span>متابعة أسبوعية وإشراف مباشر على فريق التسويق أو التنفيذ عبر Sun Media</span></li>
+                <li class="flex items-start gap-2.5"><span class="text-cyan-400 font-bold">✓</span><span>قراءة دورية لبيانات السوق وتحسين الحملات ومعدلات التحويل</span></li>
+              </ul>
+            </div>
+            <div class="card-3d-content pt-6 mt-6 border-t border-white/10">
+              <button type="button" onclick="selectPackageForContact('باقة منظومة النمو الشامل والشراكة VIP')" class="w-full rounded-2xl border border-cyan-500/50 bg-cyan-500/15 py-3.5 text-sm font-extrabold text-cyan-300 hover:bg-cyan-400 hover:text-slate-950 transition">
+                اطلب باقة النمو الشامل والشراكة
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Interactive Custom Package Configurator -->
+        <div class="card-3d rounded-3xl p-6 sm:p-8 border border-cyan-500/30">
+          <div class="card-3d-content space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <span class="text-xs font-bold text-cyan-400 font-en">INTERACTIVE PACKAGE BUILDER</span>
+                <h3 class="text-xl sm:text-2xl font-black text-white">صمّم باقتك المخصصة حسب احتياج شركتك</h3>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-300">حدد العناصر التي تحتاجها الآن وسنقوم بتكوين ملخص باقتك المخصصة فوراً:</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="custom-modules-list">
+              <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-3.5 cursor-pointer hover:border-amber-400/50 transition">
+                <input type="checkbox" value="تشخيص الأداء وتحليل السوق والمنافسين" class="custom-mod-cb h-4 w-4 accent-amber-500" checked />
+                <span class="text-xs sm:text-sm font-bold text-slate-200">تشخيص الأداء وتحليل السوق والمنافسين</span>
+              </label>
+              <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-3.5 cursor-pointer hover:border-amber-400/50 transition">
+                <input type="checkbox" value="بناء التموضع وعرض القيمة ورسائل العلامة" class="custom-mod-cb h-4 w-4 accent-amber-500" checked />
+                <span class="text-xs sm:text-sm font-bold text-slate-200">بناء التموضع وعرض القيمة ورسائل العلامة</span>
+              </label>
+              <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-3.5 cursor-pointer hover:border-amber-400/50 transition">
+                <input type="checkbox" value="استراتيجية المحتوى وخطة الحملات والقنوات" class="custom-mod-cb h-4 w-4 accent-amber-500" />
+                <span class="text-xs sm:text-sm font-bold text-slate-200">استراتيجية المحتوى وخطة الحملات والقنوات</span>
+              </label>
+              <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-3.5 cursor-pointer hover:border-amber-400/50 transition">
+                <input type="checkbox" value="هندسة العروض التجارية وتحسين رحلة العميل" class="custom-mod-cb h-4 w-4 accent-amber-500" />
+                <span class="text-xs sm:text-sm font-bold text-slate-200">هندسة العروض التجارية وتحسين رحلة العميل</span>
+              </label>
+              <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-3.5 cursor-pointer hover:border-amber-400/50 transition">
+                <input type="checkbox" value="إشراف استراتيجي شهري مع الفريق (Fractional CMO)" class="custom-mod-cb h-4 w-4 accent-amber-500" />
+                <span class="text-xs sm:text-sm font-bold text-slate-200">إشراف استراتيجي شهري (Fractional CMO)</span>
+              </label>
+              <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-3.5 cursor-pointer hover:border-amber-400/50 transition">
+                <input type="checkbox" value="تنفيذ متكامل للحملات والمحتوى عبر Sun Media" class="custom-mod-cb h-4 w-4 accent-amber-500" />
+                <span class="text-xs sm:text-sm font-bold text-slate-200">تنفيذ متكامل للحملات عبر Sun Media</span>
+              </label>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl bg-slate-950/90 p-4 border border-white/10">
+              <div>
+                <span class="text-xs text-slate-400">التوصية التلقائية بناءً على اختيارك (<span id="selected-mod-count" class="text-amber-400 font-bold">2</span> محاور):</span>
+                <p id="recommended-pkg-label" class="text-sm sm:text-base font-extrabold text-white mt-0.5">باقة التشخيص والتموضع التأسيسي المخصصة</p>
+              </div>
+              <button type="button" id="apply-custom-pkg-btn" class="w-full sm:w-auto rounded-xl bg-gradient-to-r from-cyan-400 to-amber-400 px-6 py-3 text-xs sm:text-sm font-black text-slate-950 hover:brightness-110 transition">
+                اعتماد الباقة المخصصة في طلب الاستشارة ←
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- METHODOLOGY & WORKFLOW SECTION (طريقة عملي - 6 مراحل) -->
+    <section id="methodology" class="py-16 lg:py-24 border-t border-white/10 bg-slate-950/50">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
+
+        <div class="text-center max-w-3xl mx-auto space-y-3">
+          <span class="text-xs font-bold uppercase tracking-widest text-amber-400 font-en">METHODOLOGY & STRATEGIC FRAMEWORK</span>
+          <h2 class="text-3xl sm:text-4xl font-black text-white">طريقة عملي: منهجية من 6 مراحل لبناء نظام النمو</h2>
+          <p class="text-sm sm:text-base text-slate-300">
+            منهجية علمية وعملية متسلسلة تنقل شركتك من التشتت والعشوائية إلى نظام تسويقي مترابط قابل للقياس والتوسع.
+          </p>
+        </div>
+
+        <!-- 6 Steps Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 perspective-container">
+          <!-- Step 1 -->
+          <div class="card-3d rounded-3xl p-6">
+            <div class="card-3d-content space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl font-black text-amber-400 font-en">01 / DISCOVER</span>
+                <span class="rounded-lg bg-amber-500/15 px-2.5 py-1 text-xs font-bold text-amber-300">المرحلة الأولى</span>
+              </div>
+              <h3 class="text-xl font-black text-white">اكتشاف (Discover)</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                فهم الشركة والسوق والعملاء والمنافسين وأهداف العمل التجارية الحقيقية قبل اقتراح أي نشاط تسويقي.
+              </p>
+              <div class="pt-2 border-t border-white/10 text-xs text-slate-400">
+                <strong class="text-slate-200">المخرج:</strong> خريطة استكشاف السوق ونموذج العمل والجمهور.
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="card-3d rounded-3xl p-6">
+            <div class="card-3d-content space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl font-black text-cyan-400 font-en">02 / DIAGNOSE</span>
+                <span class="rounded-lg bg-cyan-500/15 px-2.5 py-1 text-xs font-bold text-cyan-300">المرحلة الثانية</span>
+              </div>
+              <h3 class="text-xl font-black text-white">تشخيص (Diagnose)</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                تحديد نقاط القوة، الفجوات التسويقية والبيعية، العوائق التي تمنع التحويل، وأبرز فرص النمو الكامنة في السوق.
+              </p>
+              <div class="pt-2 border-t border-white/10 text-xs text-slate-400">
+                <strong class="text-slate-200">المخرج:</strong> تقرير التشخيص الاستراتيجي وتحديد الأولويات.
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="card-3d rounded-3xl p-6">
+            <div class="card-3d-content space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl font-black text-amber-400 font-en">03 / DIRECTION</span>
+                <span class="rounded-lg bg-amber-500/15 px-2.5 py-1 text-xs font-bold text-amber-300">المرحلة الثالثة</span>
+              </div>
+              <h3 class="text-xl font-black text-white">تحديد الاتجاه (Direction)</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                صياغة التموضع التنافسي، تحديد الجمهور المستهدف بدقة، وصياغة عرض القيمة (Value Proposition) والرسائل الأساسية.
+              </p>
+              <div class="pt-2 border-t border-white/10 text-xs text-slate-400">
+                <strong class="text-slate-200">المخرج:</strong> بوصلة العلامة التجارية ومصفوفة الرسائل.
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="card-3d rounded-3xl p-6">
+            <div class="card-3d-content space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl font-black text-cyan-400 font-en">04 / SYSTEM DESIGN</span>
+                <span class="rounded-lg bg-cyan-500/15 px-2.5 py-1 text-xs font-bold text-cyan-300">المرحلة الرابعة</span>
+              </div>
+              <h3 class="text-xl font-black text-white">تصميم النظام (System Design)</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                ربط القنوات التسويقية، محاور المحتوى، هيكلة العروض، مفاهيم الحملات، ورحلة العميل في منظومة واحدة متناغمة.
+              </p>
+              <div class="pt-2 border-t border-white/10 text-xs text-slate-400">
+                <strong class="text-slate-200">المخرج:</strong> المخطط الهندسي لمنظومة التسويق والمبيعات.
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="card-3d rounded-3xl p-6">
+            <div class="card-3d-content space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl font-black text-emerald-400 font-en">05 / EXECUTION</span>
+                <span class="rounded-lg bg-emerald-500/15 px-2.5 py-1 text-xs font-bold text-emerald-300">المرحلة الخامسة</span>
+              </div>
+              <h3 class="text-xl font-black text-white">تنفيذ (Execution)</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                تحويل التوجه الاستراتيجي إلى خطوات عملية ومهام تنفيذية واضحة بالتعاون مع فريق العمل الداخلي أو عبر فريق Sun Media.
+              </p>
+              <div class="pt-2 border-t border-white/10 text-xs text-slate-400">
+                <strong class="text-slate-200">المخرج:</strong> خطط عمل تنفيذية، حملات فعالة، وإشراف مباشر.
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="card-3d rounded-3xl p-6">
+            <div class="card-3d-content space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl font-black text-purple-400 font-en">06 / OPTIMIZE</span>
+                <span class="rounded-lg bg-purple-500/15 px-2.5 py-1 text-xs font-bold text-purple-300">المرحلة السادسة</span>
+              </div>
+              <h3 class="text-xl font-black text-white">قياس وتحسين (Optimize)</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                قراءة استجابة السوق الفورية، التعلم من البيانات ومؤشرات الأداء (KPIs)، وتعديل المسار لتعظيم العائد على الاستثمار.
+              </p>
+              <div class="pt-2 border-t border-white/10 text-xs text-slate-400">
+                <strong class="text-slate-200">المخرج:</strong> تقارير أداء دورية وتحسين مستمر للنمو.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CASE STUDIES & PORTFOLIO SECTION -->
+    <section id="portfolio" class="py-16 lg:py-24 border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
+
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-amber-400 font-en">SELECTED CASE STUDIES & CLIENTS</span>
+            <h2 class="mt-2 text-3xl sm:text-4xl font-black text-white">دراسات الحالة ونماذج الأعمال السابقة</h2>
+          </div>
+          <!-- Sector Filter Buttons -->
+          <div class="flex flex-wrap gap-2" id="portfolio-filters">
+            <button type="button" data-filter="all" class="filter-btn rounded-xl bg-amber-500 px-4 py-2 text-xs font-extrabold text-slate-950 transition">الكل (6)</button>
+            <button type="button" data-filter="realestate" class="filter-btn rounded-xl border border-white/15 bg-slate-900/80 px-4 py-2 text-xs font-bold text-slate-300 hover:border-amber-400 transition">التطوير العقاري والمعمار</button>
+            <button type="button" data-filter="retail" class="filter-btn rounded-xl border border-white/15 bg-slate-900/80 px-4 py-2 text-xs font-bold text-slate-300 hover:border-amber-400 transition">الرعاية الصحية والتجزئة</button>
+            <button type="button" data-filter="b2b" class="filter-btn rounded-xl border border-white/15 bg-slate-900/80 px-4 py-2 text-xs font-bold text-slate-300 hover:border-amber-400 transition">الحلول التسويقية والخدمات</button>
+          </div>
+        </div>
+
+        <!-- Case Studies Grid -->
+        <div id="case-studies-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 perspective-container"></div>
+
+        <!-- Client Brands Wall (16 Brands) -->
+        <div class="card-3d rounded-3xl p-6 sm:p-8 border border-white/10">
+          <div class="card-3d-content space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h3 class="text-xl font-black text-white">علامات تجارية وشركات تشرفت بالعمل معها</h3>
+              <span class="text-xs font-bold text-amber-400">عبر مصر، السعودية، الإمارات، رومانيا، والولايات المتحدة</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-center">
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">SALAM PROPERTIES</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">BADRANA Architecture</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">RIVIERA PROPERTIES</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">ELKATAN Textile & Curtains</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">صيدليات التمامي ELTAMAMY</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">Sun Media Agency</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">Pachino Gift Store</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">WHITE HAND</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">A Academy App</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">City Building Group</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">ESTIRAHA Cafe & Lounge</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">علوان سيراميك وبورسلين (1978)</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">Falcon</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">الشربيني للتصميم والديكور</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">زاوية قائمة للمحاسبة والتأسيس</div>
+              <div class="rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs font-bold text-slate-200">SEA Educational Academy</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- INTERACTIVE STRATEGIC DIAGNOSTIC QUIZ SECTION -->
+    <section id="diagnostic" class="py-16 lg:py-24 border-t border-white/10 bg-slate-950/60">
+      <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div class="card-3d rounded-3xl p-6 sm:p-10 border border-cyan-500/40">
+          <div class="card-3d-content space-y-6">
+            <div class="text-center space-y-2">
+              <span class="inline-block rounded-full bg-cyan-500/20 px-3.5 py-1 text-xs font-bold text-cyan-300">أداة تفاعلية مجانية</span>
+              <h2 class="text-2xl sm:text-3xl font-black text-white">اختبر جاهزية النظام التسويقي لشركتك في دقيقة</h2>
+              <p class="text-xs sm:text-sm text-slate-300">أجب عن الأسئلة الأربعة الجوهرية في منهجيتي لتحصل على تشخيص فوري وتوصية بالخطوة القادمة:</p>
+            </div>
+
+            <div class="space-y-4" id="quiz-questions">
+              <!-- Q1 -->
+              <div class="rounded-2xl bg-slate-950/80 p-4 border border-white/10">
+                <p class="text-sm font-extrabold text-white mb-2.5">1. هل يستطيع عميلك الحالي شرح القيمة التي تقدمها شركتك بجملة واحدة واضحة؟</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q1" value="25" class="accent-amber-500" checked /> نعم، بوضوح تام
+                  </label>
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q1" value="15" class="accent-amber-500" /> إلى حد ما / غير متأكد
+                  </label>
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q1" value="5" class="accent-amber-500" /> لا، الرسالة مشتتة
+                  </label>
+                </div>
+              </div>
+
+              <!-- Q2 -->
+              <div class="rounded-2xl bg-slate-950/80 p-4 border border-white/10">
+                <p class="text-sm font-extrabold text-white mb-2.5">2. هل المحتوى والإعلانات الحالية تبني علامة تجارية ونظام مبيعات أم مجرد نشر يومي؟</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q2" value="25" class="accent-amber-500" /> نظام مترابط ومخطط
+                  </label>
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q2" value="15" class="accent-amber-500" checked /> حملات موسمية متقطعة
+                  </label>
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q2" value="5" class="accent-amber-500" /> مجرد أنشطة متفرقة
+                  </label>
+                </div>
+              </div>
+
+              <!-- Q3 -->
+              <div class="rounded-2xl bg-slate-950/80 p-4 border border-white/10">
+                <p class="text-sm font-extrabold text-white mb-2.5">3. ما مدى وضوح تميزك التنافسي بعيداً عن التنافس بالسعر الأرخص؟</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q3" value="25" class="accent-amber-500" /> تموضع قوي ومختلف
+                  </label>
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q3" value="15" class="accent-amber-500" checked /> نتشابه مع المنافسين
+                  </label>
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q3" value="5" class="accent-amber-500" /> نعاني من حرب الأسعار
+                  </label>
+                </div>
+              </div>
+
+              <!-- Q4 -->
+              <div class="rounded-2xl bg-slate-950/80 p-4 border border-white/10">
+                <p class="text-sm font-extrabold text-white mb-2.5">4. هل هناك ربط واضح بين أنشطة التسويق وأرقام المبيعات الفعلية؟</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q4" value="25" class="accent-amber-500" /> نعم، نقيس العائد بدقة
+                  </label>
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q4" value="15" class="accent-amber-500" /> نقيس التفاعل فقط
+                  </label>
+                  <label class="flex items-center gap-2 rounded-xl border border-white/10 p-2.5 text-xs text-slate-200 cursor-pointer hover:border-amber-400">
+                    <input type="radio" name="q4" value="5" class="accent-amber-500" checked /> لا توجد مؤشرات واضحة
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 p-5 border border-amber-500/30">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-slate-400">درجة الجاهزية الاستراتيجية الحالية:</span>
+                  <span id="quiz-score-badge" class="rounded-lg bg-amber-500 px-2.5 py-0.5 text-sm font-black text-slate-950">60 / 100</span>
+                </div>
+                <p id="quiz-diagnosis-text" class="text-xs sm:text-sm font-bold text-amber-200">
+                  لديك أساس جيد، لكنك بحاجة إلى ربط التموضع والرسائل بنظام تسويقي ومبيعات متكامل لوقف تشتت الجهود.
+                </p>
+              </div>
+              <button type="button" id="send-diagnosis-btn" class="w-full sm:w-auto shrink-0 rounded-xl bg-amber-500 px-5 py-3 text-xs sm:text-sm font-black text-slate-950 hover:brightness-110 transition">
+                ناقش نتيجة التشخيص مع حسن ←
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT & CONSULTATION BOOKING SECTION -->
+    <section id="contact" class="py-16 lg:py-24 border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+          <!-- Contact Info Column -->
+          <div class="lg:col-span-5 space-y-6">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-widest text-amber-400 font-en">LET'S BUILD YOUR GROWTH SYSTEM</span>
+              <h2 class="mt-2 text-3xl sm:text-4xl font-black text-white">تواصل معي واحجز جلستك الاستشارية</h2>
+              <p class="mt-3 text-sm sm:text-base text-slate-300 leading-relaxed">
+                هل أنت مستعد لتحويل التسويق في شركتك من محاولات متفرقة إلى نظام نمو واضح ومربح؟ اختر طريقة التواصل المفضلة لديك أو املأ نموذج الاستشارة السريع.
+              </p>
+            </div>
+
+            <!-- Direct Contact Cards -->
+            <div class="space-y-3.5">
+              <a href="https://wa.me/201221359590" target="_blank" rel="noopener noreferrer" class="card-3d flex items-center justify-between rounded-2xl p-4 hover:border-emerald-400/50 transition">
+                <div class="card-3d-content flex items-center gap-3.5">
+                  <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 font-bold text-lg">💬</span>
+                  <div>
+                    <span class="text-xs text-slate-400 block">تواصل مباشر عبر واتساب (WhatsApp)</span>
+                    <span class="text-base font-extrabold text-white font-en" dir="ltr">01221359590</span>
+                  </div>
+                </div>
+                <span class="card-3d-content text-xs font-bold text-emerald-400">مراسلة فورية ←</span>
+              </a>
+
+              <a href="mailto:hassan.ali.elzayat@gmail.com" class="card-3d flex items-center justify-between rounded-2xl p-4 hover:border-amber-400/50 transition">
+                <div class="card-3d-content flex items-center gap-3.5">
+                  <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 font-bold text-lg">✉️</span>
+                  <div>
+                    <span class="text-xs text-slate-400 block">البريد الإلكتروني الرسمي</span>
+                    <span class="text-sm sm:text-base font-extrabold text-white font-en">hassan.ali.elzayat@gmail.com</span>
+                  </div>
+                </div>
+                <span class="card-3d-content text-xs font-bold text-amber-400">إرسال بريد ←</span>
+              </a>
+
+              <div class="card-3d flex items-center justify-between rounded-2xl p-4 hover:border-cyan-400/50 transition">
+                <div class="card-3d-content flex items-center justify-between w-full">
+                  <a href="tel:01221359590" class="flex items-center gap-3.5">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-400 font-bold text-lg">📞</span>
+                    <div>
+                      <span class="text-xs text-slate-400 block">الاتصال الهاتفي المباشر</span>
+                      <span class="text-base font-extrabold text-white font-en" dir="ltr">01221359590</span>
+                    </div>
+                  </a>
+                  <button type="button" id="copy-phone-btn" class="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-bold text-slate-200 hover:bg-amber-500 hover:text-slate-950 transition">نسخ الرقم</button>
+                </div>
+              </div>
+
+              <a href="https://hassanalielzayat.github.io/portfolio/" target="_blank" rel="noopener noreferrer" class="card-3d flex items-center justify-between rounded-2xl p-4 hover:border-purple-400/50 transition">
+                <div class="card-3d-content flex items-center gap-3.5">
+                  <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-500/20 text-purple-400 font-bold text-lg">🌐</span>
+                  <div>
+                    <span class="text-xs text-slate-400 block">النسخة السابقة من البورتفوليو</span>
+                    <span class="text-xs sm:text-sm font-bold text-white font-en">hassanalielzayat.github.io/portfolio</span>
+                  </div>
+                </div>
+                <span class="card-3d-content text-xs font-bold text-purple-400">زيارة ←</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Interactive Consultation Request Form -->
+          <div class="lg:col-span-7">
+            <div class="card-3d rounded-3xl p-6 sm:p-8 border border-amber-500/30">
+              <form id="consultation-form" class="card-3d-content space-y-4">
+                <div class="border-b border-white/10 pb-3">
+                  <h3 class="text-xl font-black text-white">نموذج طلب استشارة أو عرض سعر</h3>
+                  <p class="text-xs text-slate-400 mt-1">املأ البيانات ليتم تجهيز ملخص طلبك وإرساله مباشرة عبر واتساب أو البريد الإلكتروني</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label for="client-name" class="block text-xs font-bold text-slate-300 mb-1.5">الاسم الكامل *</label>
+                    <input id="client-name" type="text" required placeholder="مثال: أحمد محمود" class="w-full rounded-xl border border-white/15 bg-slate-950/90 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none" />
+                  </div>
+                  <div>
+                    <label for="client-company" class="block text-xs font-bold text-slate-300 mb-1.5">اسم الشركة / العلامة التجارية *</label>
+                    <input id="client-company" type="text" required placeholder="مثال: شركة النخبة للتطوير" class="w-full rounded-xl border border-white/15 bg-slate-950/90 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none" />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label for="client-service" class="block text-xs font-bold text-slate-300 mb-1.5">الخدمة أو الباقة المطلوبة</label>
+                    <select id="client-service" class="w-full rounded-xl border border-white/15 bg-slate-950/90 px-4 py-2.5 text-sm text-white focus:border-amber-400 focus:outline-none">
+                      <option value="باقة بناء العلامة ونظام التسويق (الأكثر طلباً)">باقة بناء العلامة ونظام التسويق (الأكثر طلباً)</option>
+                      <option value="باقة التشخيص والتوجيه الاستراتيجي">باقة التشخيص والتوجيه الاستراتيجي</option>
+                      <option value="باقة منظومة النمو الشامل والشراكة VIP">باقة منظومة النمو الشامل والشراكة VIP</option>
+                      <option value="استشارات التسويق الاستراتيجي">01 / استشارات التسويق الاستراتيجي</option>
+                      <option value="استراتيجية العلامة التجارية">02 / استراتيجية العلامة التجارية</option>
+                      <option value="استراتيجية التسويق الشاملة">03 / استراتيجية التسويق الشاملة</option>
+                      <option value="استراتيجية النمو وتطوير العروض">04 / استراتيجية النمو وتطوير العروض</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="client-model" class="block text-xs font-bold text-slate-300 mb-1.5">نموذج التعاون المفضل</label>
+                    <select id="client-model" class="w-full rounded-xl border border-white/15 bg-slate-950/90 px-4 py-2.5 text-sm text-white focus:border-amber-400 focus:outline-none">
+                      <option value="نموذج مشروع بناء الاستراتيجية المتكاملة">مشروع بناء الاستراتيجية المتكاملة</option>
+                      <option value="نموذج الجلسات الاستشارية والتشخيصية المكثفة">جلسات استشارية وتشخيصية مكثفة</option>
+                      <option value="نموذج الشريك الاستراتيجي المستمر Fractional CMO">الشريك الاستراتيجي المستمر (Fractional CMO)</option>
+                      <option value="نموذج الحلول التنفيذية الكاملة عبر Sun Media">الحلول التنفيذية الكاملة عبر Sun Media</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label for="client-brief" class="block text-xs font-bold text-slate-300 mb-1.5">ما هو أبرز تحدٍ تسويقي أو هدف تسعى لتحقيقه حالياً؟</label>
+                  <textarea id="client-brief" rows="3" placeholder="اكتب نبذة مختصرة عن وضع شركتك الحالي والنتيجة التي تطمح لتحقيقها..." class="w-full rounded-xl border border-white/15 bg-slate-950/90 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"></textarea>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                  <button type="submit" class="flex-1 min-w-[200px] rounded-2xl bg-gradient-to-r from-amber-500 to-amber-400 px-6 py-3.5 text-sm font-black text-slate-950 shadow-lg shadow-amber-500/20 hover:brightness-110 transition">
+                    إرسال الطلب عبر واتساب فورا 💬
+                  </button>
+                  <button type="button" id="send-email-btn" class="rounded-2xl border border-white/15 bg-slate-900 px-5 py-3.5 text-xs sm:text-sm font-bold text-white hover:border-amber-400 transition">
+                    إرسال عبر البريد ✉️
+                  </button>
+                  <button type="button" id="copy-brief-btn" class="rounded-2xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3.5 text-xs sm:text-sm font-bold text-cyan-300 hover:bg-cyan-500/20 transition">
+                    نسخ ملخص الطلب 📋
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-white/10 bg-slate-950/90 py-10">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <div class="flex items-center gap-3">
+          <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 font-black text-slate-950">HZ</span>
+          <span>© جميع الحقوق محفوظة — <strong class="text-white">حسن علي الزيات (Hassan Ali Elzayat)</strong> | خبير تسويق استراتيجي والمدير التنفيذي لـ Sun Media</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="#hero" class="hover:text-amber-400 transition">العودة للأعلى ↑</a>
+          <a href="https://hassanalielzayat.github.io/portfolio/" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 transition font-en">GitHub Portfolio</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Application Logic & Three.js 3D Engine -->
+  <script>
+    const PILLARS_DATA = [
+      {
+        badge: '01 / اكتشاف السوق',
+        title: '01 / اكتشاف (Discover)',
+        en: 'Market & Business Discovery',
+        desc: 'فهم عميق لطبيعة الشركة، ديناميكيات السوق، سلوك العملاء، والمنافسين، وربطها بأهداف العمل التجارية الحقيقية قبل اتخاذ أي قرار.'
+      },
+      {
+        badge: '02 / تشخيص الفجوات',
+        title: '02 / تشخيص (Diagnose)',
+        en: 'Strategic Diagnostics & Gap Analysis',
+        desc: 'تحديد نقاط القوة، الفجوات التسويقية والبيعية، العوائق التي تمنع التحويل، وأبرز فرص النمو الكامنة في السوق.'
+      },
+      {
+        badge: '03 / تحديد الاتجاه',
+        title: '03 / تحديد الاتجاه (Direction)',
+        en: 'Positioning & Value Direction',
+        desc: 'صياغة التموضع التنافسي، تحديد الجمهور المستهدف بدقة، وصياغة عرض القيمة (Value Proposition) والرسائل الأساسية.'
+      },
+      {
+        badge: '04 / تصميم النظام',
+        title: '04 / تصميم النظام (System Design)',
+        en: 'Integrated Marketing Architecture',
+        desc: 'ربط القنوات التسويقية، محاور المحتوى، هيكلة العروض، مفاهيم الحملات، ورحلة العميل في منظومة واحدة متناغمة.'
+      },
+      {
+        badge: '05 / التنفيذ المتكامل',
+        title: '05 / تنفيذ (Execution)',
+        en: 'Aligned Strategic Execution',
+        desc: 'تحويل التوجه الاستراتيجي إلى خطوات عملية ومهام تنفيذية واضحة بالتعاون مع فريق العمل الداخلي أو عبر شركة Sun Media.'
+      },
+      {
+        badge: '06 / القياس والتحسين',
+        title: '06 / قياس وتحسين (Optimize)',
+        en: 'Data-Driven Growth Optimization',
+        desc: 'قراءة استجابة السوق الفورية، التعلم من البيانات ومؤشرات الأداء (KPIs)، وتعديل المسار لتعظيم العائد على الاستثمار.'
+      }
+    ];
+
+    const SERVICES_DETAILS = [
+      {
+        code: '01 / CONSULTING',
+        title: 'استشارات التسويق الاستراتيجي',
+        subtitle: 'تشخيص شامل وخارطة طريق تنفيذية واضحة',
+        problem: 'كثير من الشركات تنفق مبالغ كبيرة على الإعلانات وصناعة المحتوى دون معرفة السبب الحقيقي وراء ضعف المبيعات أو تذبذب النتائج.',
+        solution: 'نقوم بفحص شامل لمنظومة العمل والتسويق، تحليل السوق والمنافسين، وتحديد التموضع والفرص الأكثر ربحية لوضع خطة عمل واضحة.',
+        deliverables: [
+          'تقرير التشخيص الاستراتيجي الشامل (Strategic Audit Report)',
+          'تحليل الفجوات التسويقية والبيعية (Gap & Bottleneck Analysis)',
+          'تحديد الشرائح الأكثر ربحية والتموضع التنافسي المقترح',
+          'خارطة طريق تنفيذية بالأولويات لمدة 90 إلى 180 يوماً'
+        ]
+      },
+      {
+        code: '02 / BRAND STRATEGY',
+        title: 'استراتيجية العلامة التجارية',
+        subtitle: 'بناء علامة راسخة يسهل التعرف عليها والوثوق بها',
+        problem: 'عندما تتشابه رسالتك مع جميع المنافسين في السوق، يضطر العميل للمقارنة بالسعر فقط وتفقد العلامة قيمتها ومكانتها.',
+        solution: 'نبني تموضعاً فريداً للعلامة التجارية، ونصيغ عرض القيمة والرسائل الأساسية التي تخاطب احتياج العميل المباشر وتبني الثقة.',
+        deliverables: [
+          'وثيقة تموضع العلامة التجارية (Brand Positioning Statement)',
+          'صياغة عرض القيمة الأساسي (Core Value Proposition)',
+          'مصفوفة الرسائل التسويقية حسب شرائح العملاء (Messaging Framework)',
+          'تحديد شخصية العلامة ونبرة الصوت والاتجاه التواصلي (Brand Tone & Direction)'
+        ]
+      },
+      {
+        code: '03 / MARKETING STRATEGY',
+        title: 'استراتيجية التسويق الشاملة',
+        subtitle: 'منظومة مترابطة تجمع القنوات والمحتوى والحملات',
+        problem: 'النشر العشوائي وإطلاق حملات إعلانية منفصلة بدون رحلة عميل واضحة يؤدي إلى استنزاف الميزانية وضعف العائد.',
+        solution: 'نضع استراتيجية تسويق متكاملة تربط الأهداف التجارية بالقنوات الأنسب، وتحدد اتجاه المحتوى والحملات ومؤشرات القياس.',
+        deliverables: [
+          'خطة القنوات التسويقية وتوزيع الميزانية (Channel & Media Strategy)',
+          'استراتيجية ومحاور المحتوى الاستراتيجي (Content Pillars & Funnel)',
+          'تصميم رحلة العميل من أول ظهور حتى الشراء والتكرار',
+          'إطار مؤشرات الأداء الرئيسية (KPIs Dashboard Framework)'
+        ]
+      },
+      {
+        code: '04 / GROWTH STRATEGY',
+        title: 'استراتيجية النمو وتطوير العروض',
+        subtitle: 'تعظيم الاستحواذ والتحويل ومواءمة التسويق مع المبيعات',
+        problem: 'وجود زيارات أو استفسارات كثيرة (Leads) دون تحولها إلى مبيعات فعلية بسبب ضعف العرض التجاري أو الفجوة بين التسويق والمبيعات.',
+        solution: 'نعيد هندسة العروض التجارية والباقات، ونعالج نقاط التسرب في قمع المبيعات بالتكامل المباشر مع فريق المبيعات.',
+        deliverables: [
+          'هندسة وتطوير العروض التجارية والباقات (Offer Creation & Pricing Framing)',
+          'خطة تحسين معدلات التحويل والاستحواذ (CRO & Acquisition Plan)',
+          'بروتوكول مواءمة التسويق مع فريق المبيعات (Marketing-Sales SLA)',
+          'خارطة طريق النمو المستدام والتوسع في الأسواق'
+        ]
+      }
+    ];
+
+    const CASE_STUDIES = [
+      {
+        id: 'salam',
+        category: 'realestate',
+        categoryLabel: 'التطوير العقاري',
+        brand: 'سلام العقارية (SALAM PROPERTIES)',
+        challenge: 'صياغة اتجاه تواصل أوضح لشركة عقارية يتوسع حضورها في أسواق متعددة.',
+        strategy: 'تنظيم تواصل العلامة والمحتوى ومفاهيم الحملات لدعم حضور متماسك عبر الأسواق.',
+        result: 'اتجاه تواصل ومحتوى وحملات أكثر ترابطًا يضمن اتساق تجربة العميل.',
+        accent: 'amber'
+      },
+      {
+        id: 'badrana',
+        category: 'realestate',
+        categoryLabel: 'الهندسة والتصميم والتنفيذ',
+        brand: 'بدرانة (BADRANA)',
+        challenge: 'بناء حضور متماسك لمكتب هندسي وتوضيح قيمة خدماته المتكاملة للعميل.',
+        strategy: 'التموضع حول رحلة (التصميم ← الإشراف ← التنفيذ) مع استراتيجية للعلامة ورسائل ومحتوى متكامل.',
+        result: 'اتجاه موحد للعلامة تحت شعار: "Creative Spaces. Trusted Quality. Since 2018."',
+        accent: 'cyan'
+      },
+      {
+        id: 'riviera',
+        category: 'realestate',
+        categoryLabel: 'العقارات',
+        brand: 'ريفيرا العقارية (RIVIERA PROPERTIES)',
+        challenge: 'تقديم هوية عقارية واضحة وسهلة التعرف ضمن سوق عقاري شديد التنافسية.',
+        strategy: 'توحيد حضور العلامة ورسائلها الأساسية بما يبرز الثقة والارتباط بالموقع ونمط الحياة.',
+        result: 'اتجاه بصري وتواصلي متماسك يدعم تقديم العلامة عبر كافة نقاط التواصل.',
+        accent: 'amber'
+      },
+      {
+        id: 'elkatan',
+        category: 'retail',
+        categoryLabel: 'المنسوجات والأقمشة',
+        brand: 'القطن (ELKATAN)',
+        challenge: 'إبراز شخصية العلامة وتسهيل التعرف عليها في سوق يعتمد على المنتج والتنوع.',
+        strategy: 'تطوير حضور مميز للعلامة وربط مظهرها ورسائلها بتجربة المنتج الملموسة.',
+        result: 'اتجاه هوية واتصال أكثر تماسكًا قابل للتطبيق على كافة مواد ومخرجات العلامة.',
+        accent: 'emerald'
+      },
+      {
+        id: 'eltamamy',
+        category: 'retail',
+        categoryLabel: 'الرعاية الصحية والصيدلة',
+        brand: 'صيدليات التمامي (ELTAMAMY PHARMACY)',
+        challenge: 'بناء تواصل يسهل التعرف على الصيدلية ويرسخ الثقة والقرب من المجتمع.',
+        strategy: 'تنظيم الهوية والرسائل حول سهولة الوصول والخدمة الموثوقة واحتياجات العملاء اليومية.',
+        result: 'إطار اتصال واضح ومتسق لدعم حضور العلامة عبر مختلف الفروع ونقاط التواصل.',
+        accent: 'cyan'
+      },
+      {
+        id: 'sunmedia',
+        category: 'b2b',
+        categoryLabel: 'الحلول التسويقية المتكاملة',
+        brand: 'صن ميديا (Sun Media)',
+        challenge: 'توضيح دور الشركة بما يتجاوز الانطباع التقليدي عن وكالة إعلانات.',
+        strategy: 'ربط العلامة التجارية والتسويق وتطوير الأعمال ومواءمة التموضع واكتساب العملاء وهيكل الخدمات.',
+        result: 'تموضع أوضح تحت مفهوم "Integrated Marketing Solutions" كشريك يبدأ بفهم احتياج العمل.',
+        accent: 'purple'
+      }
+    ];
+
+    function showToast(title, message) {
+      const container = document.getElementById('toast-container');
+      const titleEl = document.getElementById('toast-title');
+      const msgEl = document.getElementById('toast-msg');
+      titleEl.textContent = title;
+      msgEl.textContent = message;
+      container.classList.remove('hidden');
+      setTimeout(() => {
+        container.classList.add('hidden');
+      }, 4000);
+    }
+
+    function openModalWithHTML(htmlContent) {
+      const modal = document.getElementById('detail-modal');
+      const body = document.getElementById('modal-body');
+      body.innerHTML = htmlContent;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    window.closeModal = function() {
+      const modal = document.getElementById('detail-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    };
+
+    window.openServiceModal = function(index) {
+      const s = SERVICES_DETAILS[index];
+      if (!s) return;
+      const listHtml = s.deliverables.map(d => `<li class="flex items-start gap-2"><span class="text-amber-400 font-bold">✓</span><span>${d}</span></li>`).join('');
+      openModalWithHTML(`
+        <div class="space-y-5">
+          <span class="inline-block rounded-lg bg-amber-500/20 px-3 py-1 text-xs font-black text-amber-300 font-en">${s.code}</span>
+          <div>
+            <h3 class="text-2xl font-black text-white">${s.title}</h3>
+            <p class="text-sm text-cyan-300 mt-1">${s.subtitle}</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="rounded-2xl bg-slate-950 p-4 border border-rose-500/20">
+              <span class="text-xs font-bold text-rose-400 block mb-1">المشكلة الشائعة:</span>
+              <p class="text-xs text-slate-300 leading-relaxed">${s.problem}</p>
+            </div>
+            <div class="rounded-2xl bg-slate-950 p-4 border border-emerald-500/20">
+              <span class="text-xs font-bold text-emerald-400 block mb-1">الحل الاستراتيجي:</span>
+              <p class="text-xs text-slate-300 leading-relaxed">${s.solution}</p>
+            </div>
+          </div>
+          <div class="rounded-2xl bg-slate-950/90 p-5 border border-white/10 space-y-2.5">
+            <h4 class="text-sm font-extrabold text-amber-400">المخرجات التفصيلية التي تتسلمها:</h4>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-200">${listHtml}</ul>
+          </div>
+          <div class="pt-2 flex justify-end gap-3">
+            <button type="button" onclick="selectServiceForContact('${s.title}'); closeModal();" class="rounded-xl bg-amber-500 px-5 py-2.5 text-xs sm:text-sm font-black text-slate-950 hover:brightness-110 transition">
+              احجز هذه الخدمة الآن ←
+            </button>
+          </div>
+        </div>
+      `);
+    };
+
+    window.openCaseModal = function(caseId) {
+      const c = CASE_STUDIES.find(item => item.id === caseId);
+      if (!c) return;
+      openModalWithHTML(`
+        <div class="space-y-5">
+          <span class="inline-block rounded-lg bg-cyan-500/20 px-3 py-1 text-xs font-bold text-cyan-300">${c.categoryLabel}</span>
+          <h3 class="text-2xl font-black text-white">${c.brand}</h3>
+          <div class="space-y-3">
+            <div class="rounded-2xl bg-slate-950 p-4 border border-white/10">
+              <span class="text-xs font-bold text-amber-400 block mb-1">01. التحدي الأساسي (The Challenge):</span>
+              <p class="text-sm text-slate-200 leading-relaxed">${c.challenge}</p>
+            </div>
+            <div class="rounded-2xl bg-slate-950 p-4 border border-white/10">
+              <span class="text-xs font-bold text-cyan-400 block mb-1">02. المعالجة الاستراتيجية (Strategic Approach):</span>
+              <p class="text-sm text-slate-200 leading-relaxed">${c.strategy}</p>
+            </div>
+            <div class="rounded-2xl bg-slate-950 p-4 border border-emerald-500/30">
+              <span class="text-xs font-bold text-emerald-400 block mb-1">03. النتيجة والأثر (The Outcome):</span>
+              <p class="text-sm text-white font-bold leading-relaxed">${c.result}</p>
+            </div>
+          </div>
+          <div class="pt-2 flex justify-end">
+            <button type="button" onclick="selectServiceForContact('استشارة مشابهة لدراسة حالة: ${c.brand}'); closeModal();" class="rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 px-5 py-2.5 text-xs sm:text-sm font-black text-slate-950">
+              اطلب استراتيجية مشابهة لقطاعك ←
+            </button>
+          </div>
+        </div>
+      `);
+    };
+
+    window.selectServiceForContact = function(serviceName) {
+      const select = document.getElementById('client-service');
+      if (select) {
+        let found = false;
+        for (let i = 0; i < select.options.length; i++) {
+          if (select.options[i].value === serviceName) {
+            select.selectedIndex = i;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          const opt = document.createElement('option');
+          opt.value = serviceName;
+          opt.textContent = serviceName;
+          select.appendChild(opt);
+          select.value = serviceName;
+        }
+      }
+      document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+      showToast('تم اختيار الخدمة', `تم تحديد "${serviceName}" في نموذج طلب الاستشارة.`);
+    };
+
+    window.selectPackageForContact = function(pkgName) {
+      window.selectServiceForContact(pkgName);
+    };
+
+    window.selectModelForContact = function(modelName) {
+      const select = document.getElementById('client-model');
+      if (select) {
+        select.value = modelName;
+      }
+      document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+      showToast('تم اختيار نموذج التعاون', `تم تحديد "${modelName}" في نموذج التواصل.`);
+    };
+
+    function renderCaseStudies(filterKey) {
+      const grid = document.getElementById('case-studies-grid');
+      if (!grid) return;
+      const filtered = filterKey === 'all' ? CASE_STUDIES : CASE_STUDIES.filter(c => c.category === filterKey);
+      grid.innerHTML = filtered.map(c => `
+        <div class="card-3d rounded-3xl p-6 flex flex-col justify-between">
+          <div class="card-3d-content space-y-3.5">
+            <div class="flex items-center justify-between">
+              <span class="rounded-lg bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 text-[11px] font-bold text-amber-300">${c.categoryLabel}</span>
+              <span class="text-xs text-slate-400 font-en">CASE STUDY</span>
+            </div>
+            <h3 class="text-lg font-black text-white">${c.brand}</h3>
+            <div class="space-y-2 text-xs">
+              <div class="rounded-xl bg-slate-950/70 p-3 border border-white/5">
+                <strong class="text-amber-400 block mb-0.5">التحدي:</strong>
+                <span class="text-slate-300">${c.challenge}</span>
+              </div>
+              <div class="rounded-xl bg-slate-950/70 p-3 border border-white/5">
+                <strong class="text-cyan-400 block mb-0.5">الاستراتيجية:</strong>
+                <span class="text-slate-300">${c.strategy}</span>
+              </div>
+              <div class="rounded-xl bg-emerald-950/30 p-3 border border-emerald-500/20">
+                <strong class="text-emerald-400 block mb-0.5">النتيجة:</strong>
+                <span class="text-slate-100 font-semibold">${c.result}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-3d-content pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
+            <button type="button" onclick="openCaseModal('${c.id}')" class="text-xs font-bold text-cyan-400 hover:underline">استعراض دراسة الحالة ←</button>
+            <button type="button" onclick="selectServiceForContact('استشارة لقطاع ${c.categoryLabel} (${c.brand})')" class="text-xs font-bold text-amber-300 hover:text-amber-400">اطلب مماثلاً</button>
+          </div>
+        </div>
+      `).join('');
+      attach3DTiltListeners();
+    }
+
+    function attach3DTiltListeners() {
+      const cards = document.querySelectorAll('.card-3d');
+      cards.forEach(card => {
+        card.onmousemove = function(e) {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          card.style.setProperty('--mouse-x', `${x}px`);
+          card.style.setProperty('--mouse-y', `${y}px`);
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotateX = ((y - centerY) / centerY) * -4;
+          const rotateY = ((x - centerX) / centerX) * 4;
+          card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg)`;
+        };
+        card.onmouseleave = function() {
+          card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+        };
+      });
+    }
+
+    let bgVisualMode = 0;
+    let heroTargetRotationY = 0;
+    let heroCoreMesh = null;
+    let animFrameId = null;
+
+    function initThreeJSBackground() {
+      if (typeof THREE === 'undefined') return;
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+
+      const bgCanvas = document.getElementById('webgl-bg');
+      const bgRenderer = new THREE.WebGLRenderer({ canvas: bgCanvas, alpha: true, antialias: true });
+      bgRenderer.setSize(window.innerWidth, window.innerHeight);
+      bgRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const bgScene = new THREE.Scene();
+      const bgCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      bgCamera.position.z = 26;
+
+      const mainGroup = new THREE.Group();
+      bgScene.add(mainGroup);
+
+      const particleCount = 260;
+      const positions = new Float32Array(particleCount * 3);
+      for (let i = 0; i < particleCount * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 65;
+        positions[i + 1] = (Math.random() - 0.5) * 45;
+        positions[i + 2] = (Math.random() - 0.5) * 35;
+      }
+      const particleGeo = new THREE.BufferGeometry();
+      particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const particleMat = new THREE.PointsMaterial({
+        color: 0xF59E0B,
+        size: 0.22,
+        transparent: true,
+        opacity: 0.65
+      });
+      const particleSystem = new THREE.Points(particleGeo, particleMat);
+      mainGroup.add(particleSystem);
+
+      const bgIcoGeo = new THREE.IcosahedronGeometry(11, 1);
+      const bgIcoMat = new THREE.MeshBasicMaterial({
+        color: 0x22D3EE,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.07
+      });
+      const bgIcoMesh = new THREE.Mesh(bgIcoGeo, bgIcoMat);
+      mainGroup.add(bgIcoMesh);
+
+      const heroCanvas = document.getElementById('hero-3d-canvas');
+      const heroContainer = heroCanvas.parentElement;
+      const heroRenderer = new THREE.WebGLRenderer({ canvas: heroCanvas, alpha: true, antialias: true });
+      heroRenderer.setSize(heroContainer.clientWidth, heroContainer.clientHeight);
+      heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const heroScene = new THREE.Scene();
+      const heroCamera = new THREE.PerspectiveCamera(50, heroContainer.clientWidth / heroContainer.clientHeight, 0.1, 100);
+      heroCamera.position.z = 8.5;
+
+      const heroGroup = new THREE.Group();
+      heroScene.add(heroGroup);
+
+      const outerGeo = new THREE.IcosahedronGeometry(2.3, 1);
+      const outerMat = new THREE.MeshBasicMaterial({
+        color: 0xF59E0B,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.55
+      });
+      heroCoreMesh = new THREE.Mesh(outerGeo, outerMat);
+      heroGroup.add(heroCoreMesh);
+
+      const innerGeo = new THREE.OctahedronGeometry(1.25, 0);
+      const innerMat = new THREE.MeshBasicMaterial({
+        color: 0x22D3EE,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.85
+      });
+      const innerMesh = new THREE.Mesh(innerGeo, innerMat);
+      heroGroup.add(innerMesh);
+
+      const ringGeo1 = new THREE.TorusGeometry(3.1, 0.025, 16, 100);
+      const ringMat1 = new THREE.MeshBasicMaterial({ color: 0xFBBF24, transparent: true, opacity: 0.5 });
+      const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
+      ring1.rotation.x = Math.PI / 2.6;
+      heroGroup.add(ring1);
+
+      const ringGeo2 = new THREE.TorusGeometry(3.5, 0.02, 16, 100);
+      const ringMat2 = new THREE.MeshBasicMaterial({ color: 0x22D3EE, transparent: true, opacity: 0.35 });
+      const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
+      ring2.rotation.y = Math.PI / 3;
+      heroGroup.add(ring2);
+
+      const nodeMeshes = [];
+      const nodeGeo = new THREE.SphereGeometry(0.16, 16, 16);
+      for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2;
+        const nodeMat = new THREE.MeshBasicMaterial({ color: i === 0 ? 0xF59E0B : 0x38BDF8 });
+        const node = new THREE.Mesh(nodeGeo, nodeMat);
+        node.position.set(Math.cos(angle) * 3.1, Math.sin(angle) * 1.4, Math.sin(angle) * 2.2);
+        heroGroup.add(node);
+        nodeMeshes.push(node);
+      }
+
+      let mouseX = 0;
+      let mouseY = 0;
+      window.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
+
+      let isDragging = false;
+      let prevX = 0;
+      heroCanvas.addEventListener('mousedown', (e) => { isDragging = true; prevX = e.clientX; });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+      window.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          const delta = e.clientX - prevX;
+          heroTargetRotationY += delta * 0.015;
+          prevX = e.clientX;
+        }
+      });
+
+      window.highlight3DPillar = function(index) {
+        heroTargetRotationY = (index / 6) * Math.PI * 2;
+        nodeMeshes.forEach((n, idx) => {
+          n.material.color.setHex(idx === index ? 0xF59E0B : 0x22D3EE);
+          n.scale.setScalar(idx === index ? 1.6 : 1.0);
+        });
+      };
+
+      window.cycle3DMode = function() {
+        bgVisualMode = (bgVisualMode + 1) % 3;
+        const label = document.getElementById('mode-3d-label');
+        if (bgVisualMode === 0) {
+          bgIcoMat.color.setHex(0x22D3EE);
+          particleMat.color.setHex(0xF59E0B);
+          outerMat.color.setHex(0xF59E0B);
+          label.textContent = 'طور 3D: النواة الاستراتيجية';
+        } else if (bgVisualMode === 1) {
+          bgIcoMat.color.setHex(0xF59E0B);
+          particleMat.color.setHex(0x22D3EE);
+          outerMat.color.setHex(0x22D3EE);
+          label.textContent = 'طور 3D: شبكة النمو الذكية';
+        } else {
+          bgIcoMat.color.setHex(0x10B981);
+          particleMat.color.setHex(0xA855F7);
+          outerMat.color.setHex(0x10B981);
+          label.textContent = 'طور 3D: التموضع التنافسي';
+        }
+      };
+
+      window.addEventListener('resize', () => {
+        bgCamera.aspect = window.innerWidth / window.innerHeight;
+        bgCamera.updateProjectionMatrix();
+        bgRenderer.setSize(window.innerWidth, window.innerHeight);
+
+        if (heroContainer) {
+          heroCamera.aspect = heroContainer.clientWidth / heroContainer.clientHeight;
+          heroCamera.updateProjectionMatrix();
+          heroRenderer.setSize(heroContainer.clientWidth, heroContainer.clientHeight);
+        }
+      });
+
+      function animate() {
+        animFrameId = requestAnimationFrame(animate);
+
+        particleSystem.rotation.y += 0.0009;
+        bgIcoMesh.rotation.x += 0.0012;
+        bgIcoMesh.rotation.y += 0.0018;
+        mainGroup.position.x += (mouseX * 2.2 - mainGroup.position.x) * 0.04;
+        mainGroup.position.y += (-mouseY * 1.8 - mainGroup.position.y) * 0.04;
+        bgRenderer.render(bgScene, bgCamera);
+
+        heroCoreMesh.rotation.y += 0.006;
+        heroCoreMesh.rotation.x += 0.003;
+        innerMesh.rotation.y -= 0.01;
+        ring1.rotation.z += 0.008;
+        ring2.rotation.x -= 0.006;
+
+        heroGroup.rotation.y += (heroTargetRotationY + mouseX * 0.5 - heroGroup.rotation.y) * 0.06;
+        heroGroup.rotation.x += (mouseY * 0.3 - heroGroup.rotation.x) * 0.06;
+
+        heroRenderer.render(heroScene, heroCamera);
+      }
+      animate();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCaseStudies('all');
+      initThreeJSBackground();
+      attach3DTiltListeners();
+
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+        });
+        document.querySelectorAll('.mobile-nav-link').forEach(link => {
+          link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+        });
+      }
+
+      const closeModalBtn = document.getElementById('close-modal-btn');
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', window.closeModal);
+      }
+
+      const toggle3DBtn = document.getElementById('toggle-3d-btn');
+      if (toggle3DBtn) {
+        toggle3DBtn.addEventListener('click', () => {
+          if (typeof window.cycle3DMode === 'function') window.cycle3DMode();
+        });
+      }
+
+      document.querySelectorAll('.pillar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.getAttribute('data-pillar'), 10);
+          const p = PILLARS_DATA[idx];
+          if (!p) return;
+
+          document.querySelectorAll('.pillar-btn').forEach(b => {
+            b.className = 'pillar-btn rounded-xl border border-white/10 bg-slate-900/70 px-2.5 py-2 text-xs font-semibold text-slate-300 hover:border-amber-400/50 transition';
+          });
+          btn.className = 'pillar-btn rounded-xl border border-amber-500 bg-amber-500/20 px-2.5 py-2 text-xs font-bold text-white transition';
+
+          document.getElementById('active-pillar-badge').textContent = p.badge;
+          document.getElementById('pillar-title').textContent = p.title;
+          document.getElementById('pillar-en').textContent = p.en;
+          document.getElementById('pillar-desc').textContent = p.desc;
+
+          if (typeof window.highlight3DPillar === 'function') {
+            window.highlight3DPillar(idx);
+          }
+        });
+      });
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const filter = btn.getAttribute('data-filter');
+          document.querySelectorAll('.filter-btn').forEach(b => {
+            b.className = 'filter-btn rounded-xl border border-white/15 bg-slate-900/80 px-4 py-2 text-xs font-bold text-slate-300 hover:border-amber-400 transition';
+          });
+          btn.className = 'filter-btn rounded-xl bg-amber-500 px-4 py-2 text-xs font-extrabold text-slate-950 transition';
+          renderCaseStudies(filter);
+        });
+      });
+
+      const checkboxes = document.querySelectorAll('.custom-mod-cb');
+      function updateCustomPackageSummary() {
+        const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+        const countEl = document.getElementById('selected-mod-count');
+        const labelEl = document.getElementById('recommended-pkg-label');
+        countEl.textContent = selected.length;
+        if (selected.length === 0) {
+          labelEl.textContent = 'يرجى اختيار محور واحد على الأقل لتخصيص باقتك';
+        } else if (selected.length <= 2) {
+          labelEl.textContent = 'باقة التشخيص والتموضع التأسيسي المخصصة (' + selected.length + ' محاور)';
+        } else if (selected.length <= 4) {
+          labelEl.textContent = 'باقة بناء العلامة ونظام التسويق المتكامل المخصصة (' + selected.length + ' محاور)';
+        } else {
+          labelEl.textContent = 'باقة منظومة النمو الشامل والشراكة التنفيذية VIP (' + selected.length + ' محاور)';
+        }
+      }
+      checkboxes.forEach(cb => cb.addEventListener('change', updateCustomPackageSummary));
+
+      const applyCustomPkgBtn = document.getElementById('apply-custom-pkg-btn');
+      if (applyCustomPkgBtn) {
+        applyCustomPkgBtn.addEventListener('click', () => {
+          const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+          if (selected.length === 0) {
+            showToast('تنبيه', 'اختر محوراً واحداً على الأقل لتكوين باقتك المخصصة.');
+            return;
+          }
+          const pkgTitle = document.getElementById('recommended-pkg-label').textContent;
+          window.selectServiceForContact(pkgTitle);
+          const briefEl = document.getElementById('client-brief');
+          if (briefEl) {
+            briefEl.value = 'أرغب في باقة مخصصة تشمل المحاور التالية:\n- ' + selected.join('\n- ');
+          }
+        });
+      }
+
+      function evaluateQuiz() {
+        let total = 0;
+        ['q1', 'q2', 'q3', 'q4'].forEach(qName => {
+          const checked = document.querySelector(`input[name="${qName}"]:checked`);
+          if (checked) total += parseInt(checked.value, 10);
+        });
+        const badge = document.getElementById('quiz-score-badge');
+        const diag = document.getElementById('quiz-diagnosis-text');
+        badge.textContent = `${total} / 100`;
+        if (total >= 85) {
+          diag.textContent = 'منظومتك التسويقية ناضجة! الخطوة المثالية الآن هي "استراتيجية النمو وتطوير العروض" لتعظيم الحصة السوقية.';
+        } else if (total >= 55) {
+          diag.textContent = 'لديك أساس جيد، لكنك بحاجة إلى "باقة بناء العلامة ونظام التسويق" لربط التموضع والرسائل بقنوات البيع.';
+        } else {
+          diag.textContent = 'هناك تشتت يستنزف ميزانيتك. ننصح بالبدء فوراً بـ "باقة التشخيص والتوجيه الاستراتيجي" لبناء أساس واضح.';
+        }
+      }
+      document.querySelectorAll('#quiz-questions input[type="radio"]').forEach(r => {
+        r.addEventListener('change', evaluateQuiz);
+      });
+
+      const sendDiagnosisBtn = document.getElementById('send-diagnosis-btn');
+      if (sendDiagnosisBtn) {
+        sendDiagnosisBtn.addEventListener('click', () => {
+          const score = document.getElementById('quiz-score-badge').textContent;
+          const diag = document.getElementById('quiz-diagnosis-text').textContent;
+          const briefEl = document.getElementById('client-brief');
+          if (briefEl) {
+            briefEl.value = `أجريت اختبار الجاهزية الاستراتيجية وحصلت على (${score}).\nالتشخيص: ${diag}\nأود مناقشة خطة تطوير منظومة التسويق لشركتي.`;
+          }
+          document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+          showToast('تم إرفاق نتيجة التشخيص', 'تمت إضافة نتيجتك في نموذج الاستشارة بالأسفل.');
+        });
+      }
+
+      function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+        } else {
+          fallbackCopy(text);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (err) {}
+        document.body.removeChild(ta);
+      }
+
+      const copyPhoneBtn = document.getElementById('copy-phone-btn');
+      if (copyPhoneBtn) {
+        copyPhoneBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          copyTextToClipboard('01221359590');
+          showToast('تم نسخ الرقم', 'تم نسخ رقم الهاتف 01221359590 إلى الحافظة.');
+        });
+      }
+
+      function buildConsultationMessage() {
+        const name = document.getElementById('client-name').value.trim() || 'عميل محتمل';
+        const company = document.getElementById('client-company').value.trim() || 'غير محدد';
+        const service = document.getElementById('client-service').value;
+        const model = document.getElementById('client-model').value;
+        const brief = document.getElementById('client-brief').value.trim() || 'أود حجز جلسة استشارية لمناقشة تطوير منظومة التسويق.';
+        return `مرحباً أستاذ حسن علي الزيات،\n\nأود طلب استشارة تسويقية:\n• الاسم: ${name}\n• الشركة: ${company}\n• الباقة/الخدمة: ${service}\n• نموذج التعاون: ${model}\n• التفاصيل والتحدي الحالي:\n${brief}`;
+      }
+
+      const form = document.getElementById('consultation-form');
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const msg = buildConsultationMessage();
+          const waUrl = `https://wa.me/201221359590?text=${encodeURIComponent(msg)}`;
+          window.open(waUrl, '_blank', 'noopener,noreferrer');
+          showToast('جاري فتح واتساب', 'تم تجهيز رسالتك الاستشارية لإرسالها إلى حسن علي الزيات.');
+        });
+      }
+
+      const sendEmailBtn = document.getElementById('send-email-btn');
+      if (sendEmailBtn) {
+        sendEmailBtn.addEventListener('click', () => {
+          const msg = buildConsultationMessage();
+          const subject = encodeURIComponent('طلب استشارة تسويقية استراتيجية - حسن علي الزيات');
+          const body = encodeURIComponent(msg);
+          window.location.href = `mailto:hassan.ali.elzayat@gmail.com?subject=${subject}&body=${body}`;
+          showToast('جاري فتح البريد الإلكتروني', 'تم تجهيز مسودة البريد الإلكتروني إلى hassan.ali.elzayat@gmail.com');
+        });
+      }
+
+      const copyBriefBtn = document.getElementById('copy-brief-btn');
+      if (copyBriefBtn) {
+        copyBriefBtn.addEventListener('click', () => {
+          const msg = buildConsultationMessage();
+          copyTextToClipboard(msg);
+          showToast('تم نسخ ملخص الطلب', 'يمكنك الآن لصق الملخص وإرساله في أي محادثة.');
+        });
+      }
+    });
+  </script>
+</body>
+</html>
